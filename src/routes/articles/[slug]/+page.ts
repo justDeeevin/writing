@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 
 export async function load({ params }: { params: { slug: string } }) {
   try {
-    const article = await import(`/src/articles/${params.slug}.adoc`);
+    const article = await import(`../../../articles/${params.slug}.adoc`);
 
     return {
       content: article.default,
