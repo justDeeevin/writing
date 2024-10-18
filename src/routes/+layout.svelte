@@ -12,6 +12,9 @@
   import javascript from 'highlight.js/lib/languages/javascript';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+
+  injectSpeedInsights();
 
   page.subscribe(() => {
     if (browser) {
