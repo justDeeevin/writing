@@ -1,7 +1,7 @@
 ---
 title: A Walkthrough of My NixOS Configuration
 date: "2023-07-01"
-published: false
+published: true
 categories:
   - nixos
   - video
