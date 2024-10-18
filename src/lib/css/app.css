@@ -17,5 +17,12 @@ ul {
 
 code {
   border-radius: 5px;
-  display: inline-block !important;
+  display: inline-block;
+  border: solid 2px var(--base04);
+  transition: border-color 0.2s;
+  padding: 10px;
+}
+
+code:hover {
+  border-color: var(--base07);
 }

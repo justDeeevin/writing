@@ -1,8 +1,7 @@
 <script lang="ts">
   import '$lib/css/app.css';
   import '$lib/css/layout.css';
-  // TODO: create custom Oxocarbon theme
-  import 'highlight.js/styles/github.css';
+  import '$lib/css/oxocarbon-hljs.css';
 
   import { theme } from '$lib/store';
   import { browser } from '$app/environment';
