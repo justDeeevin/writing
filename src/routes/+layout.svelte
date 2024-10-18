@@ -51,29 +51,33 @@
   <Switch leftText="background" bind:checked={backgroundEnabled} />
 </div>
 
-<slot />
-<footer>
-  {#if $page.url.pathname !== '/'}
-    <a href="/">home</a>
-  {/if}
-  <p>
-    copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
-    <i><a href="https://github.com/justdeeevin/justdeeevin.github.io">source</a></i>
-  </p>
-  <p>
-    colors=<a href="https://github.com/nyoom-engineering/oxocarbon">oxocarbon</a>
-  </p>
-  <p>
-    font=<a href="https://monaspace.githubnext.com">github monaspace</a>
-    neon
-  </p>
-  <p>
-    background=<a href="https://github.com/zuramai/starback.js">starback</a>
-  </p>
-  <p>
-    mail=<a href="mailto:devin.droddy@gmail.com">devin.droddy@gmail.com</a>
-  </p>
-</footer>
+<div style="min-height: 100%; display: flex; flex-direction: column;">
+  <div style="flex: 1">
+    <slot />
+  </div>
+  <footer>
+    {#if $page.url.pathname !== '/'}
+      <a href="/">home</a>
+    {/if}
+    <p>
+      copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
+      <i><a href="https://github.com/justdeeevin/justdeeevin.github.io">source</a></i>
+    </p>
+    <p>
+      colors=<a href="https://github.com/nyoom-engineering/oxocarbon">oxocarbon</a>
+    </p>
+    <p>
+      font=<a href="https://monaspace.githubnext.com">github monaspace</a>
+      neon
+    </p>
+    <p>
+      background=<a href="https://github.com/zuramai/starback.js">starback</a>
+    </p>
+    <p>
+      mail=<a href="mailto:devin.droddy@gmail.com">devin.droddy@gmail.com</a>
+    </p>
+  </footer>
+</div>
 
 <style>
   footer > p {
