@@ -38,6 +38,10 @@
   $: if (browser) window.localStorage.setItem('backgroundEnabled', backgroundEnabled.toString());
 </script>
 
+<svelte:head>
+  <title>devin's writing</title>
+</svelte:head>
+
 <Background disable={!backgroundEnabled} />
 
 <div class="top-right">
