@@ -8,7 +8,7 @@
   import Background from '$lib/components/Background.svelte';
   import Switch from '$lib/components/Switch.svelte';
   import hljs from 'highlight.js';
-  import javascript from 'highlight.js/lib/languages/javascript';
+  import nix from 'highlight.js/lib/languages/nix';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
@@ -23,7 +23,7 @@
 
   onMount(() => {
     if (browser) {
-      hljs.registerLanguage('javascript', javascript);
+      hljs.registerLanguage('nix', nix);
       hljs.highlightAll();
     }
   });
@@ -46,35 +46,38 @@
 
 <Background disable={!backgroundEnabled} />
 
-<div class="top-right">
+<div style="position: absolute; top: 5px; right: 5px;">
   <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
   <Switch leftText="background" bind:checked={backgroundEnabled} />
 </div>
 
-<footer style="position: fixed; bottom: 5px;">
-  {#if $page.url.pathname !== '/'}
-    <a href="/">home</a>
-  {/if}
-  <p>
-    copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
-    <i><a href="https://github.com/justdeeevin/justdeeevin.github.io">source</a></i>
-  </p>
-  <p>
-    colors=<a href="https://github.com/nyoom-engineering/oxocarbon">oxocarbon</a>
-  </p>
-  <p>
-    font=<a href="https://monaspace.githubnext.com">github monaspace</a>
-    neon
-  </p>
-  <p>
-    background=<a href="https://github.com/zuramai/starback.js">starback</a>
-  </p>
-  <p>
-    mail=<a href="mailto:devin.droddy@gmail.com">devin.droddy@gmail.com</a>
-  </p>
-</footer>
-
-<slot />
+<div style="min-height: 100%; display: flex; flex-direction: column;">
+  <div style="flex: 1">
+    <slot />
+  </div>
+  <footer>
+    {#if $page.url.pathname !== '/'}
+      <a href="/">home</a>
+    {/if}
+    <p>
+      copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
+      <i><a href="https://github.com/justdeeevin/justdeeevin.github.io">source</a></i>
+    </p>
+    <p>
+      colors=<a href="https://github.com/nyoom-engineering/oxocarbon">oxocarbon</a>
+    </p>
+    <p>
+      font=<a href="https://monaspace.githubnext.com">github monaspace</a>
+      neon
+    </p>
+    <p>
+      background=<a href="https://github.com/zuramai/starback.js">starback</a>
+    </p>
+    <p>
+      mail=<a href="mailto:devin.droddy@gmail.com">devin.droddy@gmail.com</a>
+    </p>
+  </footer>
+</div>
 
 <style>
   footer > p {

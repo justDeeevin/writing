@@ -1,5 +1,11 @@
 @import './theme.css';
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
 body {
   font-family: 'Monaspace Neon';
   background-color: var(--base00);
@@ -15,12 +21,14 @@ ul {
   list-style-type: square;
 }
 
-code {
+code.hljs {
   border-radius: 5px;
   display: inline-block;
   border: solid 2px var(--base04);
   transition: border-color 0.2s;
   padding: 10px;
+  background-color: rgb(from var(--base00) r b g / 65%);
+  backdrop-filter: blur(5px);
 }
 
 code:hover {

@@ -8,3 +8,67 @@ categories:
   - education
 ---
 
+:toc:
+
+This article is partner to a youtube video on my channel. It serves as a script/outline for the video. If you want to hear more candid thoughts, get better visual insight into my setup, or are interested in seeing my other videos, check it out https://www.youtube.com/watch?v=dQw4w9WgXcQ[here].
+
+== Introduction
+
+I love NixOS. I think it's elegant, easy, and incredibly powerful. However, the learning curve right now is **steep**. Nix suffers from a severe lack of documentation and instructional material. Much of the most important fundamentals are hard to come by without trial and error or extensive research. My journey to a clean, modular, and effective configuration was long and arduous. I'm writing this article with the hope of reducing the learning curve for any new explorers into this wild territory. I'll be going through my personal system configuration, piece by piece, explaining in detail how it all works. I'll use this exercise to expand upon the Nix language, system configuration, and package manager.
+
+== Nix?
+
+"Nix" refers to three things: NixOS, the Nix language, and nixpkgs. These get conflated quite often, but I'll do my best to keep the distinction clear in my writing. Before I start talking about code, I want to explain a bit about the Nix language.
+
+In my opinion, the Nix language is best thought of as JSON on giga-steroids. It's a purely functional turing-complete language, but the end product of a nix file is one large piece of structured data. I'll get more into how exactly you write Nix in a second, but this insight is crucial to understanding how everything else works. The language doesn't do all that much. It's what is done with the data that gives Nix its true power.
+
+== The default configuration
+
+Before I get into my config, I should cover what a NixOS system looks like after a fresh install. The entire system configuration is contained in two files located in /etc/nixos. Here's an abridged version of my default config:
+
+[source,nix]
+----
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+  # Enable networking
+  networking.networkmanager.enable = true;
+
+  # Set your time zone.
+  time.timeZone = "America/New_York";
+
+  # ...
+}
+----
+
+The first line is one of the most important. Let's talk about functions.
+
+An average Nix function looks something like this:
+
+[source,nix]
+----
+function = argument: argument + 1;
+----
+
+Simple enough. You can have multiple arguments:
+
+[source,nix]
+----
+function = first: second: first + second;
+----
