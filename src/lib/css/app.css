@@ -1,0 +1,21 @@
+@import './theme.css';
+
+body {
+  font-family: 'Monaspace Neon';
+  background-color: var(--base00);
+  color: var(--base06);
+  transition: 0.4s;
+}
+
+a {
+  color: var(--base0B);
+}
+
+ul {
+  list-style-type: square;
+}
+
+code {
+  border-radius: 5px;
+  display: inline-block !important;
+}

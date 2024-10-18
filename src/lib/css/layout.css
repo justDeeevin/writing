@@ -1,0 +1,11 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.top-right {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}

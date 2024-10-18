@@ -1,0 +1,14 @@
+---
+title: A Walkthrough of My NixOS Configuration
+date: "2023-07-01"
+published: false
+categories:
+  - nixos
+  - video
+  - education
+---
+
+[source,javascript]
+----
+const foo = (n) => n+1
+----

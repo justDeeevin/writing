@@ -1,2 +1,18 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+  import type { Article } from '$lib/types';
+
+  export let data: { articles: Article[] };
+</script>
+
+<h1>writing</h1>
+<p>
+  i write english about as well as i write rust or typescript. sometimes i want to publish my
+  writing. that's what this is for.
+</p>
+
+<h2>recent</h2>
+<ul>
+  {#each data.articles as article}
+    <li><a href={`articles/${article.slug}`}>{article.title}</a> - {article.date}</li>
+  {/each}
+</ul>
