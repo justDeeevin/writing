@@ -15,8 +15,24 @@
 
   injectSpeedInsights();
 
+  const codes: string[] = [];
+
   page.subscribe(() => {
     if (browser) {
+      const code = document.querySelectorAll('code');
+      code.forEach((code, i) => {
+        code.title = 'copy';
+        codes[i] = code.innerHTML;
+        code.addEventListener('click', () => {
+          navigator.clipboard.writeText(codes[i]);
+          const copiedText = '<i>copied</i><br>';
+          code.innerHTML = copiedText + code.innerHTML;
+          setTimeout(() => {
+            code.innerHTML = code.innerHTML.substring(copiedText.length);
+          }, 800);
+        });
+      });
+
       hljs.highlightAll();
     }
   });
