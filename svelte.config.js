@@ -18,4 +18,6 @@ const config = {
   }
 };
 
+config.kit.csrf.checkOrigin = false;
+
 export default config;
