@@ -59,7 +59,7 @@
       <a href="/">home</a>
     {/if}
     <p>
-      copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
+      copyright (c) <a href="https://justdeeevin.dev">devin droddy</a>
       <i><a href="https://github.com/justdeeevin/writing">source</a></i>
     </p>
     <p>
