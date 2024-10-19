@@ -25,6 +25,16 @@
     if (browser) {
       hljs.registerLanguage('nix', nix);
       hljs.highlightAll();
+
+      const links = document.querySelectorAll('a');
+      links.forEach((link) => {
+        if (
+          link.href.includes('justdeeevin.dev') ||
+          (import.meta.env.DEV && link.href.includes('localhost:5173'))
+        ) {
+          link.target = '_self';
+        }
+      });
     }
   });
 
@@ -41,6 +51,7 @@
 </script>
 
 <svelte:head>
+  <base target="_blank" />
 </svelte:head>
 
 <Background disable={!backgroundEnabled} />
