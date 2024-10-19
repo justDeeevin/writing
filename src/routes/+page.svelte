@@ -17,6 +17,8 @@
 <h2>recent</h2>
 <ul>
   {#each data.articles as article}
-    <li><a href={`articles/${article.slug}`}>{article.title}</a> - {article.date}</li>
+    <li>
+      <a href={`articles/${article.slug}`}>{article.title}</a> - {article.date}
+    </li>
   {/each}
 </ul>
