@@ -1,7 +1,6 @@
-import { json } from '@sveltejs/kit';
 import type { Article } from '$lib/types';
 
-async function getArticles() {
+async function getArticles(): Promise<Article[]> {
   let articles: Article[] = [];
 
   const paths = import.meta.glob('/src/articles/*.adoc', { eager: true });
@@ -23,6 +22,21 @@ async function getArticles() {
   return articles;
 }
 
-export async function GET() {
-  return json(await getArticles());
+export async function GET(): Promise<Response> {
+  return new Response(JSON.stringify(await getArticles()), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET'
+    }
+  });
+}
+
+export async function OPTIONS(): Promise<Response> {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET'
+    }
+  });
 }
