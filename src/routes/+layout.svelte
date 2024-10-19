@@ -58,7 +58,7 @@
 
 <div style="position: absolute; top: 5px; right: 5px;">
   <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
-  <Switch leftText="background" bind:checked={backgroundEnabled} />
+  <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
 </div>
 
 <div style="min-height: 100%; display: flex; flex-direction: column;">
