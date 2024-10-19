@@ -41,7 +41,6 @@
 </script>
 
 <svelte:head>
-  <title>devin's writing</title>
 </svelte:head>
 
 <Background disable={!backgroundEnabled} />

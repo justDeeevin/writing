@@ -4,6 +4,10 @@
   export let data: { articles: Article[] };
 </script>
 
+<svelte:head>
+  <title>devin's writing</title>
+</svelte:head>
+
 <h1>writing</h1>
 <p>
   i write english about as well as i write rust or typescript. sometimes i want to publish my
