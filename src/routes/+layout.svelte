@@ -61,7 +61,7 @@
     {/if}
     <p>
       copyright (c) <a href="https://justdeeevin.github.io">devin droddy</a>
-      <i><a href="https://github.com/justdeeevin/justdeeevin.github.io">source</a></i>
+      <i><a href="https://github.com/justdeeevin/writing">source</a></i>
     </p>
     <p>
       colors=<a href="https://github.com/nyoom-engineering/oxocarbon">oxocarbon</a>
