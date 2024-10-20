@@ -1,7 +1,7 @@
 ---
 title: A Walkthrough of My NixOS Configuration
-date: "2023-07-01"
-published: false
+date: "2023-10-20"
+published: true
 categories:
   - nixos
   - video
@@ -10,17 +10,19 @@ categories:
 
 :toc:
 
-This article is partner to a youtube video on my channel. It serves as a script/outline for the video. If you want to hear more candid thoughts, get better visual insight into my setup, or are interested in seeing my other videos, check it out https://www.youtube.com/watch?v=dQw4w9WgXcQ[here].
+This article is partner to a youtube video on my channel. It serves as a script/outline for the video. If you want to hear more candid thoughts, get better visual insight into my setup, or are interested in seeing my other videos, watch the video https://www.youtube.com/watch?v=dQw4w9WgXcQ[here]footnote:[No video yet! Just a good song :3].
 
 == Introduction
 
 I love NixOS. I think it's elegant, easy, and incredibly powerful. However, the learning curve right now is **steep**. Nix suffers from a severe lack of documentation and instructional material. Much of the most important fundamentals are hard to come by without trial and error or extensive research. My journey to a clean, modular, and effective configuration was long and arduous. I'm writing this article with the hope of reducing the learning curve for any new explorers into this wild territory. I'll be going through my personal system configuration, piece by piece, explaining in detail how it all works. I'll use this exercise to expand upon the Nix language, system configuration, and package manager.
 
+You can find my configuration https://github.com/justdeeevin/nix-config[here].
+
 == Nix?
 
 "Nix" refers to three things: NixOS, the Nix language, and nixpkgs. These get conflated quite often, but I'll do my best to keep the distinction clear in my writing. Before I start talking about code, I want to explain a bit about the Nix language.
 
-In my opinion, the Nix language is best thought of as JSON on giga-steroids. It's a purely functional turing-complete language, but the end product of a nix file is one large piece of structured data. I'll get more into how exactly you write Nix in a second, but this insight is crucial to understanding how everything else works. The language doesn't do all that much. It's what is done with the data that gives Nix its true power.
+In my opinion, the Nix language is best thought of as JSON on giga-steroids. It's a purely functional turing-complete language, but the end product of a Nix file is one large piece of structured data. I'll get more into how exactly you write Nix in a second, but this insight is crucial to understanding how everything else works. The language doesn't do all that much. It's what is done with the data that gives Nix its true power.
 
 == The default configuration
 
@@ -72,3 +74,319 @@ Simple enough. You can have multiple arguments:
 ----
 function = first: second: first + second;
 ----
+
+_Note that this is actually a function inside of a function. Don't ask._
+
+You can also create a function that takes structured data as an argument. This structured data is called an attribute set (AKA attrset or just set). A set is just a collection of key-value pairs.
+
+[source,nix]
+----
+function = {first, second}: first + second;
+----
+
+So, the first thing to notice about this configuration file is that it describes a function. It explicitly says that it accepts attributes config and pkgs, but the elipses means that it'll take anything else that you want to give it. By making the config a function, the NixOS rebuild service can build the system with different versions of nixpkgs without issue by simply passing in the correct version to the provided function.
+
+The next thing to notice is that the config outputs a set. There's an established structure to a NixOS configuration to which the rebuild service expects the config function to adhere. There isn't any magic to the grand majorityfootnote:[I say grand majority because packages are a little magic since they leverage derivations, but I'm not getting into that today. Check out https://www.youtube.com/watch?v=5D3nUU1OVx8&t=738s[this video] for a good explanation of derivations and packaging with Nix.] of the NixOS config--just a massive set that gets used by the rebuild service.
+
+== flake.nix
+
+My system configuration is defined in a Nix flake. Flakes are a (technically experimental) way to share and manage Nix data. You can think of a flake.nix file as a package.json for an npm package, or Cargo.toml for a Rust crate. Generally, they're used to create a package, define a devshell, or define a system configuration, but technically a flake can output anything. There are many incredibly useful libraries can be used as flakes. A flake works by listing a set of inputs and a set of outputs. Inputs are other flakes, sourced from the internet, and outputs are... outputs. Other flakes can use your output as an input, or the rebuild service can use your output to get a system config, or nix-shell can use your output to create a devshell, or any number of other possibilities. It's extremely versatile.
+
+There are a number of benefits to using a flake to configure your system. First, you can very easily choose and manage which version of nixpkgs you want to use. The default system configuration method pins your nixpkgs to a specific revision of the repo (hosted on GitHub), which is obscured from the user. Flakes have a flake.lock file which contains the revision info and can easily be updated with the nix flake update command. You can even have multiple branches of nixpkgs as inputs, and selectively use packages from the stable or unstable branch.
+
+Second, you can very easily use packages that are not included in nixpkgs (and have a flake.nix file). This is very difficult to achieve with the default configuration method.
+
+Third, you can place your system configuration anywhere in the filesystem you like. This makes it very easy to version control your config.
+
+Let's dive into the code.
+
+[source,nix]
+----
+{
+  description = "Nixos config flake";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    home-manager = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixvim = {
+      url = "github:justdeeevin/nvim-config";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    drg-mod-manager = {
+      url = "github:trumank/mint";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    zen-browser = {
+      url = "github:marcecoll/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = {nixpkgs, ...} @ inputs: let
+    mkSystem = {
+      configPath,
+      stateVersion,
+      home ? null,
+      modules ? [],
+    }:
+      nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          inherit stateVersion;
+          inherit home;
+        };
+        modules =
+          [
+            configPath
+            ./global
+            inputs.home-manager.nixosModules.default
+          ]
+          ++ modules;
+      };
+  in {
+    nixosConfigurations = {
+      devin-pc = mkSystem {
+        configPath = ./hosts/desktop/configuration.nix;
+        stateVersion = "23.11";
+        home = ./hosts/desktop/home.nix;
+      };
+      devin-gram = mkSystem {
+        configPath = ./hosts/lg-gram/configuration.nix;
+        stateVersion = "24.05";
+        home = ./hosts/lg-gram/home.nix;
+      };
+    };
+  };
+}
+----
+
+Some syntax clarification: +
+Attribute assignment is done with =, not :, and is always terminated with a ;. You can assign specific sub-attributes by pointing to them (e.g. nixpkgs.url = ..., which automatically makes the attribute nixpkgs and populates it with the url attribute). Arrays are enclosed with brackets ([]), can hold elements of any type, and are space-seperated. Paths are distinct datatypes. This is because, when a file is referred to with a path in the code, it is automatically moved to the Nix store and the expression is evaluated using the path to that item in the store.
+
+You can see how inputs are defined, with a url attribute. Notice the common inputs.nixpkgs.follows line. This ensures that inputs that rely upon nixpkgs will use the specific version that is used by my flake. This prevents from me having multiple different versions of nixpkgs downloaded because of desynced flake.lock files.
+
+My outputs are a function that takes in the inputs. I use the @ symbol to place all the argument attributes that arent explicitly defined into a variable I can use. For instance, nixvim is actually getting passed into my outputs function as an attribute argument, but because I'm not including it in my function declaration, it gets shoved into the inputs variable.
+
+The _let_ and _in_ keywords allow for the creation of variables that are scoped to the block. Here, I create a utility function called mkSystem. I do this because this flake actually contains the configurations for both my laptop and my desktop. Making this function dries up the flake a bit. Note how two of the arguments use the ? symbol to create default values.
+
+I use the nixpkgs.lib.nixosSystem function to create a system configuration that the rebuild service can use. specialArgs is an attrset to pass into the all of the modules. The _inherit_ keyword simply assigns an attribute to a value of the same name in that scope. Modules are basically just sets of configuration. However, modules can add valid attributes to the configuration as well (home-manager is a NixOS module, as you can see here. I'll be explaining that more soon). Take Cosmic DE as an example. Cosmic isn't currently in nixpkgs, and thus doesn't have an option in the NixOS config to enable it. However, there is a flake that adds the option services.desktopManager.cosmic to NixOS, using NixOS modules.
+
+The only output of my flake is nixosConfigurations, since that's all the flake is for. When I pass this flake to the rebuild service, it will use the nixosConfiguration with the same name as the system's hostname, but I can specify which config if I need to.
+
+== global/default.nix
+
+The most important module in mkSystem is ./global. If given a directory as a module or import, lib.nixosSystem will automatically use the default.nix file in that directory. Thus, the contents of global/default.nix are the next thing to look at. I'm only going to include the sections I want to hightlight because this file is quite long.
+
+[source,nix]
+----
+{
+  pkgs,
+  inputs,
+  stateVersion,
+  home,
+  ...
+}:
+----
+
+This has the same arguments as the default config, but it also has the specialArgs from before.
+
+[source,nix]
+----
+imports = [
+  ./nvidia.nix
+];
+----
+
+Files and sets inside of imports are evaluated and merged with the configuration. Here are the contents of nvidia.nix:
+
+[source,nix]
+----
+{ config, ... }: {
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+
+    powerManagement.enable = true;
+    powerManagement.finegrained = false;
+
+    open = false;
+
+    nvidiaSettings = true;
+
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+}
+----
+
+I have NVIDIA GPUs on both of my computers. These lines enable the proprietary drivers and the proper settings for their use with Wayland. So simple! So lovely.
+
+[source,nix]
+----
+# This value determines the NixOS release from which the default
+# settings for stateful data, like file locations and database versions
+# on your system were taken. It‘s perfectly fine and recommended to leave
+# this value at the release version of the first install of this system.
+# Before changing this value read the documentation for this option
+# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+system.stateVersion = stateVersion; # Did you read the comment?
+----
+
+The comment (part of the default config) explains stateVersion best. It's very important and specific to each machine, which is why it's an argument to mkSystem.
+
+[source,nix]
+----
+# Define a user account. Don't forget to set a password with ‘passwd’.
+users.users.devin = {
+  isNormalUser = true;
+  description = "Devin Droddy";
+  extraGroups = ["networkmanager" "wheel" "adbusers" "input"];
+  shell = pkgs.nushell;
+};
+----
+
+Notice how I can set my shell to nushell by directly passing in the package. This is a nifty NixOS trick that you see in many places.
+
+[source,nix]
+----
+nixpkgs.overlays = [
+  # inputs.neovim-nightly-overlay.overlay
+];
+----
+
+Overlays are a way to add packages to the pkgs set. I don't really have a good use case for them, but I thought I should mention them.
+
+[source,nix]
+----
+home-manager = {
+  extraSpecialArgs = {
+    inherit inputs;
+    inherit stateVersion;
+    inherit home;
+  };
+  users = {
+    "devin" = ./home.nix;
+  };
+  useGlobalPkgs = true;
+};
+----
+
+Home manager is a NixOS module that allows you to manage user-specific configurations. This includes having certain programs only available to certain users, but it also includes the far more powerful ability to configure many programs with the NixOS configuration. extraSpecialArgs here serves the same purpose as specialArgs did in the flake. I'll get into home.nix soon, but there's a few more things in my system-wide config that I should mention.
+
+[source,nix]
+----
+fonts.packages = with pkgs; [
+  (nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
+  monaspace
+];
+----
+
+This is another great application of Nix packages to NixOS. Fonts! Notice how, not only am I installing these fonts with NixOS, but I'm also able to select a specific nerd font from the large set because of how Nix works. Awesome!
+
+== global/home.nix
+
+Here is where I define most of my packages. However, like I said before, I also configure my programs here! Take a look at some of them:
+
+[source,nix]
+----
+programs.git = {
+  enable = true;
+  userName = "Devin Droddy";
+  userEmail = "devin.droddy@gmail.com";
+  extraConfig = {
+    init.defaultBranch = "main";
+    pull.rebase = true;
+  };
+};
+
+programs.starship = {
+  enable = true;
+  settings = {
+    format = "[┌<$all](bold green)";
+    character = {
+      success_symbol = "[└>](bold green)";
+      error_symbol = "[└>](bold red)";
+    };
+    cmd_duration.min_time = 0;
+  };
+  enableNushellIntegration = true;
+};
+
+programs.bacon = {
+  enable = true;
+  settings = {
+    keybindings = {
+      g = "scroll-to-top";
+      j = "scroll-lines(1)";
+      k = "scroll-lines(-1)";
+      shift-g = "scroll-to-bottom";
+    };
+    default_job = "clippy";
+    jobs = {
+      clippy = {
+        command = ["cargo" "clippy" "--all-targets" "--all-features" "--color" "always"];
+      };
+    };
+  };
+};
+----
+
+So powerful! Even if the nix definitions aren't very extensive, many programs still allow you to directly insert strings into the nix file, or provide a path to a config file. This is how I configure Wezterm, for example:
+
+[source,nix]
+----
+programs.wezterm = {
+  enable = true;
+  extraConfig = ''
+    ${builtins.readFile ../../global/wezterm.lua}
+    return config
+  '';
+};
+----
+_This is pulled from one of my system-specific configs... don't ask._
+
+I also set my cursor with home manager!
+
+[source,nix]
+----
+home.pointerCursor = let
+  getFrom = url: hash: name: {
+    gtk.enable = true;
+    name = name;
+    package = pkgs.runCommand "moveUp" {} ''
+      mkdir -p $out/share/icons
+      ln -s ${pkgs.fetchzip {
+        url = url;
+        hash = hash;
+      }} $out/share/icons/${name}
+    '';
+  };
+in
+  getFrom
+  "https://cdn.discordapp.com/attachments/698251081569927191/1222751288941477978/posy-s-cursor.tar.xz?ex=66175ae0&is=6604e5e0&hm=6d2fdd7ce1c7b41cb56845093e2c0b9c7360cc8b29681d3da17c62c8ca162bc1&"
+  "sha256-eeL9+3dcTX99xtUivfYt23R/jh8VIVqtMkoUPmk/12E="
+  "Posy";
+----
+
+Yeah, I'm using Discord's cdn. Whatever! On any new system I set up, once I rebuild off of this flake, I will automatically have the cursor installed and set. Such a time-save!
+
+https://nix-community.github.io/home-manager/options.xhtml[This page] is my home manager bible. It's a full reference of all of the options that it provides.
+
+== Final Thoughts
+
+That's pretty much it. Obviously there's plenty more config in my system, but none of it is worth noting. The https://search.nixos.org/options[NixOS options search] is incredibly helpful if you see an option and don't know what it is. https://noogle.dev[Noogle] is another great resource for finding functions provided by nixpkgs. Most functions have auto-generated documentation that can be sometimes helpful. I hope this article was helpful for understanding NixOS and Nix as a whole. It's my first try at this whole thing.
+
+[literal]
+- devin
