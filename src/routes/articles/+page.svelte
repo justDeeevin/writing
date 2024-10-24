@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { Article } from '$lib/types';
 
-  export let data: any;
+  interface Props {
+    data: { articles: Article[]; tags: string[] };
+  }
+
+  let { data }: Props = $props();
 
   const articles = data.articles as Article[];
 </script>

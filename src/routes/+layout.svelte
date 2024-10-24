@@ -3,7 +3,7 @@
   import '$lib/css/layout.css';
   import '$lib/css/oxocarbon-hljs.css';
 
-  import { theme } from '$lib/store';
+  import store from '$lib/store.svelte';
   import { browser } from '$app/environment';
   import Background from '$lib/components/Background.svelte';
   import Switch from '$lib/components/Switch.svelte';
@@ -12,6 +12,12 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
 
   injectSpeedInsights();
 
@@ -54,16 +60,18 @@
     }
   });
 
-  let themeSwitch = $theme === 'light';
-  let backgroundEnabled = browser
-    ? window.localStorage.getItem('backgroundEnabled') !== 'false'
-    : true;
+  let themeSwitch = $state(store.theme === 'light');
+  let backgroundEnabled = $state(
+    browser ? window.localStorage.getItem('backgroundEnabled') !== 'false' : true
+  );
 
-  $: $theme = themeSwitch ? 'light' : 'dark';
-  $: if (browser) {
+  $effect(() => {
+    store.theme = themeSwitch ? 'light' : 'dark';
+  });
+  $effect(() => {
     document.body.classList.toggle('light', themeSwitch);
-  }
-  $: if (browser) window.localStorage.setItem('backgroundEnabled', backgroundEnabled.toString());
+  });
+  $effect(() => window.localStorage.setItem('backgroundEnabled', backgroundEnabled.toString()));
 </script>
 
 <svelte:head>
@@ -79,7 +87,7 @@
 
 <div style="min-height: 100%; display: flex; flex-direction: column;">
   <div style="flex: 1">
-    <slot />
+    {@render children?.()}
   </div>
   <footer>
     {#if $page.url.pathname !== '/'}

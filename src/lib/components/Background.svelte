@@ -1,11 +1,15 @@
 <script lang="ts">
   import Starback from 'starback';
-  import { theme } from '$lib/store';
+  import store from '$lib/store.svelte';
   import { light, dark } from '$lib/theme';
   import Rainbow from 'rainbowvis.js';
   import { onMount } from 'svelte';
 
-  export let disable = false;
+  interface Props {
+    disable?: boolean;
+  }
+
+  let { disable = false }: Props = $props();
 
   let canvas: HTMLCanvasElement;
   let snowfall: Starback;
@@ -15,21 +19,22 @@
       type: 'dot',
       quantity: 200,
       direction: 0,
-      backgroundColor: $theme === 'light' ? light.backgroundColor : dark.backgroundColor,
-      starColor: $theme === 'light' ? light.starColor : dark.starColor,
+      backgroundColor: store.theme === 'light' ? light.backgroundColor : dark.backgroundColor,
+      starColor: store.theme === 'light' ? light.starColor : dark.starColor,
       randomOpacity: true,
       width: window.innerWidth,
       height: window.innerHeight
     });
+  });
 
-    let fresh = true;
-    theme.subscribe((t) => {
-      if (!fresh) transition(400, t, snowfall);
-      else fresh = false;
-    });
+  let previousTheme = store.theme;
+  $effect(() => {
+    transition(400, store.theme, snowfall);
+    previousTheme = store.theme;
   });
 
   const transition = (t_ms: number, theme: 'light' | 'dark', starback: Starback) => {
+    if (previousTheme === theme) return;
     const direction = theme === 'light' ? 1 : -1;
     const startIndex = theme === 'dark' ? t_ms : 0;
     const endIndex = theme === 'dark' ? 0 : t_ms;
@@ -73,10 +78,10 @@
     z-index: -1;
     opacity: {disable ? '0' : '100%'};
     transition: opacity 0.4s"
-/>
+></canvas>
 
 <svelte:window
-  on:mousemove={(e) => {
+  onmousemove={(e) => {
     const x = e.clientX;
     const y =
       e.clientY < window.innerHeight / 2
@@ -91,7 +96,7 @@
     // @ts-ignore: library is improperly typed
     snowfall.stars.config.direction = direction;
   }}
-  on:resize={() => {
+  onresize={() => {
     canvas.setAttribute('width', window.innerWidth.toString());
     canvas.setAttribute('height', window.innerHeight.toString());
   }}

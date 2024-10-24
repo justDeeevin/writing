@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { Article } from '$lib/types';
 
-  export let data: { content: any; meta: Article };
+  interface Props {
+    data: { content: any; meta: Article };
+  }
+
+  let { data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -24,5 +28,5 @@
 </hgroup>
 
 <div>
-  <svelte:component this={data.content} />
+  <data.content />
 </div>

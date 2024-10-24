@@ -1,9 +1,13 @@
 <script lang="ts">
   import '$lib/css/layout.css';
 
-  export let checked = false;
-  export let leftText: string | undefined = undefined;
-  export let rightText: string | undefined = undefined;
+  interface Props {
+    checked?: boolean;
+    leftText?: string;
+    rightText?: string;
+  }
+
+  let { checked = $bindable(false), leftText, rightText }: Props = $props();
 </script>
 
 <div class="row">
@@ -12,7 +16,7 @@
   {/if}
   <label class="switch">
     <input type="checkbox" bind:checked />
-    <span class="slider" />
+    <span class="slider"></span>
   </label>
   {#if rightText}
     <p>{rightText}</p>
