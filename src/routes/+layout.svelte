@@ -11,15 +11,12 @@
   import nix from 'highlight.js/lib/languages/nix';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
   interface Props {
     children?: import('svelte').Snippet;
   }
 
   let { children }: Props = $props();
-
-  injectSpeedInsights();
 
   const codes: string[] = [];
 

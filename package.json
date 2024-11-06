@@ -32,7 +32,7 @@
   "dependencies": {
     "@asciidoctor/core": "^3.0.4",
     "@fontsource/monaspace-neon": "^5.1.0",
-    "@vercel/speed-insights": "^1.0.13",
+    "@sveltejs/adapter-cloudflare": "^4.7.4",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.10.0",
     "rainbowvis.js": "^1.1.1",
