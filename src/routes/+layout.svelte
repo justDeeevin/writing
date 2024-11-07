@@ -24,7 +24,6 @@
     if (browser) {
       const code = document.querySelectorAll('code');
       code.forEach((code, i) => {
-        code.title = 'copy';
         codes[i] = code.innerHTML;
         code.addEventListener('click', () => {
           navigator.clipboard.writeText(codes[i]);
