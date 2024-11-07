@@ -1,6 +1,6 @@
 ---
 title: A Walkthrough of My NixOS Configuration
-date: "2023-10-20"
+date: "2024-10-20"
 published: true
 categories:
   - nixos
