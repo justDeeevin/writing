@@ -15,6 +15,7 @@ body {
 
 a {
   color: var(--base0B);
+  transition: 0.4s;
 }
 
 ul {
