@@ -65,14 +65,18 @@ An average Nix function looks something like this:
 
 [source,nix]
 ----
-function = argument: argument + 1;
+{
+  function = argument: argument + 1;
+}
 ----
 
 Simple enough. You can have multiple arguments:
 
 [source,nix]
 ----
-function = first: second: first + second;
+{
+  function = first: second: first + second;
+}
 ----
 
 _Note that this is actually a function inside of a function. Don't ask._
@@ -81,7 +85,9 @@ You can also create a function that takes structured data as an argument. This s
 
 [source,nix]
 ----
-function = {first, second}: first + second;
+{
+  function = {first, second}: first + second;
+}
 ----
 
 So, the first thing to notice about this configuration file is that it describes a function. It explicitly says that it accepts attributes config and pkgs, but the elipses means that it'll take anything else that you want to give it. By making the config a function, the NixOS rebuild service can build the system with different versions of nixpkgs without issue by simply passing in the correct version to the provided function.
@@ -199,9 +205,11 @@ This has the same arguments as the default config, but it also has the specialAr
 
 [source,nix]
 ----
-imports = [
-  ./nvidia.nix
-];
+{
+  imports = [
+    ./nvidia.nix
+  ];
+}
 ----
 
 Files and sets inside of imports are evaluated and merged with the configuration. Here are the contents of nvidia.nix:
@@ -235,62 +243,72 @@ I have NVIDIA GPUs on both of my computers. These lines enable the proprietary d
 
 [source,nix]
 ----
-# This value determines the NixOS release from which the default
-# settings for stateful data, like file locations and database versions
-# on your system were taken. It‘s perfectly fine and recommended to leave
-# this value at the release version of the first install of this system.
-# Before changing this value read the documentation for this option
-# (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-system.stateVersion = stateVersion; # Did you read the comment?
+{
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = stateVersion; # Did you read the comment?
+}
 ----
 
 The comment (part of the default config) explains stateVersion best. It's very important and specific to each machine, which is why it's an argument to mkSystem.
 
 [source,nix]
 ----
-# Define a user account. Don't forget to set a password with ‘passwd’.
-users.users.devin = {
-  isNormalUser = true;
-  description = "Devin Droddy";
-  extraGroups = ["networkmanager" "wheel" "adbusers" "input"];
-  shell = pkgs.nushell;
-};
+{
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.devin = {
+    isNormalUser = true;
+    description = "Devin Droddy";
+    extraGroups = ["networkmanager" "wheel" "adbusers" "input"];
+    shell = pkgs.nushell;
+  };
+}
 ----
 
 Notice how I can set my shell to nushell by directly passing in the package. This is a nifty NixOS trick that you see in many places.
 
 [source,nix]
 ----
-nixpkgs.overlays = [
-  # inputs.neovim-nightly-overlay.overlay
-];
+{
+  nixpkgs.overlays = [
+    # inputs.neovim-nightly-overlay.overlay
+  ];
+}
 ----
 
 Overlays are a way to add packages to the pkgs set. I don't really have a good use case for them, but I thought I should mention them.
 
 [source,nix]
 ----
-home-manager = {
-  extraSpecialArgs = {
-    inherit inputs;
-    inherit stateVersion;
-    inherit home;
+{
+  home-manager = {
+    extraSpecialArgs = {
+      inherit inputs;
+      inherit stateVersion;
+      inherit home;
+    };
+    users = {
+      "devin" = ./home.nix;
+    };
+    useGlobalPkgs = true;
   };
-  users = {
-    "devin" = ./home.nix;
-  };
-  useGlobalPkgs = true;
-};
+}
 ----
 
 Home manager is a NixOS module that allows you to manage user-specific configurations. This includes having certain programs only available to certain users, but it also includes the far more powerful ability to configure many programs with the NixOS configuration. extraSpecialArgs here serves the same purpose as specialArgs did in the flake. I'll get into home.nix soon, but there's a few more things in my system-wide config that I should mention.
 
 [source,nix]
 ----
-fonts.packages = with pkgs; [
-  (nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
-  monaspace
-];
+{
+  fonts.packages = with pkgs; [
+    (nerdfonts.override {fonts = ["NerdFontsSymbolsOnly"];})
+    monaspace
+  ];
+}
 ----
 
 This is another great application of Nix packages to NixOS. Fonts! Notice how, not only am I installing these fonts with NixOS, but I'm also able to select a specific nerd font from the large set because of how Nix works. Awesome!
@@ -301,59 +319,63 @@ Here is where I define most of my packages. However, like I said before, I also 
 
 [source,nix]
 ----
-programs.git = {
-  enable = true;
-  userName = "Devin Droddy";
-  userEmail = "devin.droddy@gmail.com";
-  extraConfig = {
-    init.defaultBranch = "main";
-    pull.rebase = true;
-  };
-};
-
-programs.starship = {
-  enable = true;
-  settings = {
-    format = "[┌<$all](bold green)";
-    character = {
-      success_symbol = "[└>](bold green)";
-      error_symbol = "[└>](bold red)";
+{
+  programs.git = {
+    enable = true;
+    userName = "Devin Droddy";
+    userEmail = "devin.droddy@gmail.com";
+    extraConfig = {
+      init.defaultBranch = "main";
+      pull.rebase = true;
     };
-    cmd_duration.min_time = 0;
   };
-  enableNushellIntegration = true;
-};
-
-programs.bacon = {
-  enable = true;
-  settings = {
-    keybindings = {
-      g = "scroll-to-top";
-      j = "scroll-lines(1)";
-      k = "scroll-lines(-1)";
-      shift-g = "scroll-to-bottom";
+  
+  programs.starship = {
+    enable = true;
+    settings = {
+      format = "[┌<$all](bold green)";
+      character = {
+        success_symbol = "[└>](bold green)";
+        error_symbol = "[└>](bold red)";
+      };
+      cmd_duration.min_time = 0;
     };
-    default_job = "clippy";
-    jobs = {
-      clippy = {
-        command = ["cargo" "clippy" "--all-targets" "--all-features" "--color" "always"];
+    enableNushellIntegration = true;
+  };
+  
+  programs.bacon = {
+    enable = true;
+    settings = {
+      keybindings = {
+        g = "scroll-to-top";
+        j = "scroll-lines(1)";
+        k = "scroll-lines(-1)";
+        shift-g = "scroll-to-bottom";
+      };
+      default_job = "clippy";
+      jobs = {
+        clippy = {
+          command = ["cargo" "clippy" "--all-targets" "--all-features" "--color" "always"];
+        };
       };
     };
   };
-};
+}
 ----
 
 So powerful! Even if the nix definitions aren't very extensive, many programs still allow you to directly insert strings into the nix file, or provide a path to a config file. This is how I configure Wezterm, for example:
 
 [source,nix]
 ----
-programs.wezterm = {
-  enable = true;
-  extraConfig = ''
-    ${builtins.readFile ../../global/wezterm.lua}
-    return config
-  '';
-};
+{
+  programs.wezterm = {
+    enable = true;
+    extraConfig = ''
+      ${builtins.readFile ../../global/wezterm.lua}
+      return config
+    '';
+  };
+}
 ----
 _This is pulled from one of my system-specific configs... don't ask._
 
@@ -361,23 +383,25 @@ I also set my cursor with home manager!
 
 [source,nix]
 ----
-home.pointerCursor = let
-  getFrom = url: hash: name: {
-    gtk.enable = true;
-    name = name;
-    package = pkgs.runCommand "moveUp" {} ''
-      mkdir -p $out/share/icons
-      ln -s ${pkgs.fetchzip {
-        url = url;
-        hash = hash;
-      }} $out/share/icons/${name}
-    '';
-  };
-in
-  getFrom
-  "https://cdn.discordapp.com/attachments/698251081569927191/1222751288941477978/posy-s-cursor.tar.xz?ex=66175ae0&is=6604e5e0&hm=6d2fdd7ce1c7b41cb56845093e2c0b9c7360cc8b29681d3da17c62c8ca162bc1&"
-  "sha256-eeL9+3dcTX99xtUivfYt23R/jh8VIVqtMkoUPmk/12E="
-  "Posy";
+{
+  home.pointerCursor = let
+    getFrom = url: hash: name: {
+      gtk.enable = true;
+      name = name;
+      package = pkgs.runCommand "moveUp" {} ''
+        mkdir -p $out/share/icons
+        ln -s ${pkgs.fetchzip {
+          url = url;
+          hash = hash;
+        }} $out/share/icons/${name}
+      '';
+    };
+  in
+    getFrom
+    "https://cdn.discordapp.com/attachments/698251081569927191/1222751288941477978/posy-s-cursor.tar.xz?ex=66175ae0&is=6604e5e0&hm=6d2fdd7ce1c7b41cb56845093e2c0b9c7360cc8b29681d3da17c62c8ca162bc1&"
+    "sha256-eeL9+3dcTX99xtUivfYt23R/jh8VIVqtMkoUPmk/12E="
+    "Posy";
+}
 ----
 
 Yeah, I'm using Discord's cdn. Whatever! On any new system I set up, once I rebuild off of this flake, I will automatically have the cursor installed and set. Such a time-save!

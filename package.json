@@ -33,8 +33,11 @@
     "@asciidoctor/core": "^3.0.4",
     "@fontsource/monaspace-neon": "^5.1.0",
     "@sveltejs/adapter-cloudflare": "^4.7.4",
+    "@types/jsdom": "^21.1.7",
+    "@wooorm/starry-night": "^3.5.0",
     "gray-matter": "^4.0.3",
-    "highlight.js": "^11.10.0",
+    "hast-util-to-html": "^9.0.3",
+    "jsdom": "^25.0.1",
     "rainbowvis.js": "^1.1.1",
     "starback": "^2.1.6"
   }

@@ -1,14 +1,12 @@
 <script lang="ts">
   import '$lib/css/app.css';
   import '$lib/css/layout.css';
-  import '$lib/css/oxocarbon-hljs.css';
+  import '$lib/css/oxocarbon-starry-night.css';
 
   import store from '$lib/store.svelte';
   import { browser } from '$app/environment';
   import Background from '$lib/components/Background.svelte';
   import Switch from '$lib/components/Switch.svelte';
-  import hljs from 'highlight.js';
-  import nix from 'highlight.js/lib/languages/nix';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
@@ -18,15 +16,12 @@
 
   let { children }: Props = $props();
 
-  const codes: string[] = [];
-
   page.subscribe(() => {
     if (browser) {
-      const code = document.querySelectorAll('code');
-      code.forEach((code, i) => {
-        codes[i] = code.innerHTML;
+      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
+      code.forEach((code) => {
         code.addEventListener('click', () => {
-          navigator.clipboard.writeText(codes[i]);
+          navigator.clipboard.writeText(code.innerText);
           const copiedText = '<i>copied</i><br>';
           code.innerHTML = copiedText + code.innerHTML;
           setTimeout(() => {
@@ -34,16 +29,11 @@
           }, 800);
         });
       });
-
-      hljs.highlightAll();
     }
   });
 
   onMount(() => {
     if (browser) {
-      hljs.registerLanguage('nix', nix);
-      hljs.highlightAll();
-
       const links = document.querySelectorAll('a');
       links.forEach((link) => {
         if (

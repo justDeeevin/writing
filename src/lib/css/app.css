@@ -22,7 +22,7 @@ ul {
   list-style-type: square;
 }
 
-code.hljs {
+pre.highlight {
   border-radius: 5px;
   display: inline-block;
   border: solid 2px var(--base04);
@@ -32,6 +32,6 @@ code.hljs {
   backdrop-filter: blur(5px);
 }
 
-code:hover {
+pre.highlight:hover {
   border-color: var(--base07);
 }

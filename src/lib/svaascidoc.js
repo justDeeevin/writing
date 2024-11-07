@@ -1,5 +1,8 @@
 import Processor from '@asciidoctor/core';
 import matter from 'gray-matter';
+import { JSDOM } from 'jsdom';
+import { all, createStarryNight } from '@wooorm/starry-night';
+import { toHtml } from 'hast-util-to-html';
 
 /** @type (content: string) => {markdown: string, meta: string} */
 function frontmatter(content) {
@@ -12,11 +15,11 @@ function frontmatter(content) {
   return { markdown, meta };
 }
 
-/** @type (content: string) => string */
-function parseAdoc(content) {
+/** @type (content: string) => Promise<string> */
+async function parseAdoc(content) {
   const processor = Processor();
 
-  return processor
+  let html = processor
     .convert(content, {
       standalone: false,
       safe: 'unsafe',
@@ -28,6 +31,24 @@ function parseAdoc(content) {
       }
     })
     .toString();
+
+  html = html.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
+
+  /** @type {NodeListOf<HTMLElement>} */
+  const codes = document.querySelectorAll('pre.highlight > code');
+  for (const code of codes) {
+    const lang = code.dataset.lang;
+    if (!lang) continue;
+    const starryNight = await createStarryNight(all);
+    const scope = starryNight.flagToScope(lang);
+    if (!scope) continue;
+    code.innerHTML = toHtml(starryNight.highlight(code.innerHTML, scope));
+  }
+
+  return document.body.innerHTML;
 }
 
 /**
@@ -53,7 +74,7 @@ export default function svasciidoc() {
     markup: async ({ content, filename }) => {
       if (filename.endsWith('.adoc')) {
         const { markdown, meta } = frontmatter(content);
-        const document = parseAdoc(markdown);
+        const document = await parseAdoc(markdown);
         const html = escapeHtml(document);
         return { code: meta + html };
       }

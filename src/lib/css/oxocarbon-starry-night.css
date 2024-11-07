@@ -1,0 +1,36 @@
+@import '@wooorm/starry-night/style/core';
+@import './theme.css';
+
+/* red = TODO */
+:root {
+  --color-prettylights-syntax-comment: var(--base03);
+  --color-prettylights-syntax-constant: var(--base06);
+  --color-prettylights-syntax-entity: var(--base0A);
+  --color-prettylights-syntax-storage-modifier-import: var(--base06);
+  --color-prettylights-syntax-entity-tag: var(--base09);
+  --color-prettylights-syntax-keyword: var(--base09);
+  --color-prettylights-syntax-string: var(--base0E);
+  --color-prettylights-syntax-variable: var(--base06);
+  --color-prettylights-syntax-brackethighlighter-unmatched: red;
+  --color-prettylights-syntax-invalid-illegal-text: red;
+  --color-prettylights-syntax-invalid-illegal-bg: red;
+  --color-prettylights-syntax-carriage-return-text: red;
+  --color-prettylights-syntax-carriage-return-bg: red;
+  --color-prettylights-syntax-string-regexp: red;
+  --color-prettylights-syntax-markup-list: red;
+  --color-prettylights-syntax-markup-heading: red;
+  --color-prettylights-syntax-markup-italic: red;
+  --color-prettylights-syntax-markup-bold: red;
+  --color-prettylights-syntax-markup-deleted-text: red;
+  --color-prettylights-syntax-markup-deleted-bg: red;
+  --color-prettylights-syntax-markup-inserted-text: red;
+  --color-prettylights-syntax-markup-inserted-bg: red;
+  --color-prettylights-syntax-markup-changed-text: red;
+  --color-prettylights-syntax-markup-changed-bg: red;
+  --color-prettylights-syntax-markup-ignored-text: red;
+  --color-prettylights-syntax-markup-ignored-bg: red;
+  --color-prettylights-syntax-meta-diff-range: red;
+  --color-prettylights-syntax-brackethighlighter-angle: red;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: red;
+  --color-prettylights-syntax-constant-other-reference-link: red;
+}
