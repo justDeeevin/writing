@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Article } from '$lib/types';
-  import store from '$lib/store.svelte';
 
   interface Props {
     data: { articles: Article[] };
