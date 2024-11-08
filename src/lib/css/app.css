@@ -26,7 +26,7 @@ pre.highlight {
   border-radius: 5px;
   display: inline-block;
   border: solid 2px var(--base04);
-  transition: border-color 0.2s;
+  transition: 0.4s;
   padding: 10px;
   /* 65% opacity */
   background-color: rgb(from var(--base00) r b g / 65%);
@@ -36,4 +36,39 @@ pre.highlight {
 pre.highlight:hover {
   border-color: var(--base07);
   cursor: pointer;
+}
+
+input[type='text'] {
+  background-color: var(--base01);
+  transition: 0.4s;
+  color: var(--base06);
+  font: inherit;
+  border: solid 1px var(--base04);
+}
+input[type='text']:focus {
+  border-color: var(--base08);
+  outline: none;
+}
+
+button {
+  border: solid 1px var(--base04);
+  background-color: var(--base01);
+  color: var(--base06);
+  transition: 0.4s;
+}
+button:disabled {
+  color: var(--base03);
+}
+body.light button {
+  color: var(--base06);
+}
+body.light button:disabled {
+  color: var(--base00);
+}
+button:enabled:hover {
+  border-color: var(--base08);
+}
+button:enabled:active {
+  background-color: var(--base02);
+  transition: 0s;
 }

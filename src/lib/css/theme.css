@@ -1,7 +1,7 @@
 @import '@fontsource/monaspace-neon';
 
 /* Oxocarbon base16 colors */
-:root {
+body {
   --base00: #161616;
   --base01: #262626;
   --base02: #393939;

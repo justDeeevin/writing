@@ -2,7 +2,7 @@
 @import './theme.css';
 
 /* red = TODO */
-:root {
+body {
   --color-prettylights-syntax-comment: var(--base03);
   --color-prettylights-syntax-constant: var(--base06);
   --color-prettylights-syntax-entity: var(--base0A);
