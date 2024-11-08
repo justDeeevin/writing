@@ -9,6 +9,6 @@ export async function load({ params }: { params: { slug: string } }) {
       meta: article.metadata
     };
   } catch (e) {
-    error(404, `Could not find ${params.slug}`);
+    error(404, `could not find article ${params.slug}`);
   }
 }

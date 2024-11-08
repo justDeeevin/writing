@@ -25,6 +25,7 @@
 
 <style>
   /* switch pulled from w3schools, slightly tweaked */
+
   /* The switch - the box around the slider */
   .switch {
     position: relative;

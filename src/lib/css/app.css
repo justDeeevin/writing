@@ -28,6 +28,7 @@ pre.highlight {
   border: solid 2px var(--base04);
   transition: border-color 0.2s;
   padding: 10px;
+  /* 65% opacity */
   background-color: rgb(from var(--base00) r b g / 65%);
   backdrop-filter: blur(5px);
 }

@@ -14,7 +14,7 @@
   <meta property="og:title" content={data.meta.title} />
 </svelte:head>
 
-<div class="article-body">
+<div style="margin-left: 10px; margin-right: 10px; margin-bottom: 10px;">
   <hgroup>
     <h1 style="margin-bottom: 0">{data.meta.title}</h1>
     <p style="margin-top: 0">{data.meta.date}</p>
@@ -30,11 +30,3 @@
 
   <data.content />
 </div>
-
-<style>
-  .article-body {
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-  }
-</style>

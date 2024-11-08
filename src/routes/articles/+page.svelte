@@ -7,7 +7,8 @@
 
   let { data }: Props = $props();
 
-  const articles = data.articles as Article[];
+  const articles = data.articles;
+  const tagsString = data.tags.map((tag) => `#${tag}`).join(' ');
 </script>
 
 <svelte:head>
@@ -15,14 +16,7 @@
 </svelte:head>
 
 <h1 style="margin-bottom: 0">tag search</h1>
-<div class="row">
-  <p>&num;{data.tags[0]}&nbsp;</p>
-  {#each data.tags as tag, i}
-    {#if i > 0}
-      <p>&amp;&amp; &num;{tag}&nbsp;</p>
-    {/if}
-  {/each}
-</div>
+<p>{tagsString}</p>
 
 <ul>
   {#each articles as article}

@@ -16,22 +16,6 @@
 
   let { children }: Props = $props();
 
-  page.subscribe(() => {
-    if (browser) {
-      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
-      code.forEach((code) => {
-        code.addEventListener('click', () => {
-          navigator.clipboard.writeText(code.innerText);
-          const copiedText = '<i>copied</i><br>';
-          code.innerHTML = copiedText + code.innerHTML;
-          setTimeout(() => {
-            code.innerHTML = code.innerHTML.substring(copiedText.length);
-          }, 800);
-        });
-      });
-    }
-  });
-
   onMount(() => {
     if (browser) {
       const links = document.querySelectorAll('a');
@@ -42,6 +26,18 @@
         ) {
           link.target = '_self';
         }
+      });
+
+      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
+      code.forEach((code) => {
+        code.addEventListener('click', () => {
+          navigator.clipboard.writeText(code.innerText);
+          const copiedText = '<i>copied</i><br>';
+          code.innerHTML = copiedText + code.innerHTML;
+          setTimeout(() => {
+            code.innerHTML = code.innerHTML.substring(copiedText.length);
+          }, 800);
+        });
       });
     }
   });

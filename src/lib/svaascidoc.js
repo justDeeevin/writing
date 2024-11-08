@@ -39,8 +39,10 @@ async function parseAdoc(content) {
   const codes = document.querySelectorAll('pre.highlight > code');
   for (const code of codes) {
     code.innerHTML = code.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
     const lang = code.dataset.lang;
     if (!lang) continue;
+
     const starryNight = await createStarryNight(all);
     const scope = starryNight.flagToScope(lang);
     if (!scope) continue;
