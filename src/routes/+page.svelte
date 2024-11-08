@@ -26,3 +26,4 @@
     </li>
   {/each}
 </ul>
+<a href="/articles">all</a>
