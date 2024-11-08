@@ -35,4 +35,5 @@ pre.highlight {
 
 pre.highlight:hover {
   border-color: var(--base07);
+  cursor: pointer;
 }
