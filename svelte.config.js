@@ -1,6 +1,6 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import svasciidoc from './src/lib/svaascidoc.js';
+import svasciidoc from './src/lib/svasciidoc.js';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
