@@ -1,0 +1,3 @@
+= Writing
+
+This is my blog. It's made with SvelteKit using Svelte 5, and hosted on Cloudflare Pages. Articles are written in Asciidoc, located in link:src/articles[`src/articles`]. They get converted to Svelte components on server startup using a link:src/lib/svasciidoc.js[custom preprocessor] (syntax highlighting in code blocks handled server-side with https://github.com/wooorm/starry-night[`starry-night`]). The generated components expose some metadata, generated from YAML frontmatter in the adoc file.
