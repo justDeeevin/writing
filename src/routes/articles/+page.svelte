@@ -1,30 +1,23 @@
 <script lang="ts">
-  import type { Article } from '$lib/types';
   import Fuse from 'fuse.js';
   import { SvelteSet } from 'svelte/reactivity';
+  import { page } from '$app/stores';
+  import { getArticles } from '$lib';
 
-  interface Props {
-    data: {
-      articles: Article[];
-      filters: { tags?: string[]; title?: string };
-    };
-  }
-
-  let { data }: Props = $props();
-
-  const available_tags = new Set(data.articles.flatMap((article) => article.categories));
+  const articles = getArticles();
+  const available_tags = new Set(articles.flatMap((article) => article.categories));
 
   let selected_tag = $state('');
 
-  let tags = new SvelteSet(data.filters.tags ?? []);
-  let title = $state(data.filters.title);
+  let tags = new SvelteSet(JSON.parse($page.url.searchParams.get('tags') ?? '[]'));
+  let title = $state($page.url.searchParams.get('title'));
 
   const unused_tags = $derived(tags.symmetricDifference(available_tags));
 
   const sorted_articles = $derived(
     (!title
-      ? data.articles
-      : new Fuse(data.articles, { keys: ['title'] }).search(title).map((item) => item.item)
+      ? articles
+      : new Fuse(articles, { keys: ['title'] }).search(title).map((item) => item.item)
     ).filter((article) =>
       tags.size === 0 ? true : article.categories.some((tag) => tags.has(tag))
     )

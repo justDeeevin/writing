@@ -1,11 +1,7 @@
 <script lang="ts">
-  import type { Article } from '$lib/types';
+  import { getArticles } from '$lib';
 
-  interface Props {
-    data: { articles: Article[] };
-  }
-
-  let { data }: Props = $props();
+  let articles = getArticles().slice(0, 8);
 </script>
 
 <svelte:head>
@@ -20,7 +16,7 @@
 
 <h2>recent</h2>
 <ul>
-  {#each data.articles as article}
+  {#each articles as article}
     <li>
       <a href={`articles/${article.slug}`}>{article.title}</a> - {article.date}
     </li>
