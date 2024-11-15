@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getArticles } from '$lib';
 
-  let articles = getArticles().slice(0, 8);
+  const articles = getArticles().slice(0, 8);
 </script>
 
 <svelte:head>

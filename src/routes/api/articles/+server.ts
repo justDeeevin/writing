@@ -1,6 +1,6 @@
 import { getArticles } from '$lib';
 
-let cors = 'https://justdeeevin.dev';
+const cors = 'https://justdeeevin.dev';
 
 export async function GET(): Promise<Response> {
   return new Response(JSON.stringify(getArticles()), {

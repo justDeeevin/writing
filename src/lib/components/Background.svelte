@@ -9,7 +9,7 @@
     disable?: boolean;
   }
 
-  let { disable = false }: Props = $props();
+  const { disable = false }: Props = $props();
 
   let canvas: HTMLCanvasElement;
   let snowfall: Starback;
