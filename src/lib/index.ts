@@ -15,9 +15,7 @@ export function getArticles() {
     }
   }
 
-  articles = articles.sort(
+  return articles.sort(
     (first, second) => new Date(second.date).getTime() - new Date(first.date).getTime()
   );
-
-  return articles;
 }
