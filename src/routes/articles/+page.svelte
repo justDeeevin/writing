@@ -80,7 +80,7 @@
   <ul>
     {#each sorted_articles as article}
       <li>
-        <a href={`articles/${article.slug}`}>{article.title}</a>
+        <a href={`articles/${article.slug}`} target={'_self'}>{article.title}</a>
       </li>
     {/each}
   </ul>
