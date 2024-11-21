@@ -31,6 +31,7 @@
   "type": "module",
   "dependencies": {
     "@asciidoctor/core": "^3.0.4",
+    "@fontsource/monaspace-krypton": "^5.1.0",
     "@fontsource/monaspace-neon": "^5.1.0",
     "@sveltejs/adapter-cloudflare": "^4.7.4",
     "@types/jsdom": "^21.1.7",

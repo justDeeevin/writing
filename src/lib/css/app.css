@@ -22,6 +22,18 @@ ul {
   list-style-type: square;
 }
 
+code {
+  font-family: 'Monaspace Krypton';
+}
+
+p > code {
+  padding: 1px;
+  border-radius: 2px;
+  border: solid 1px var(--base03);
+  background-color: rgb(from var(--base00) r b g / 65%);
+  backdrop-filter: blur(5px);
+}
+
 pre.highlight {
   border-radius: 5px;
   display: inline-block;

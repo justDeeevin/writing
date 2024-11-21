@@ -84,7 +84,7 @@
     </p>
     <p>
       font=<a href="https://monaspace.githubnext.com">github monaspace</a>
-      neon
+      neon + krypton (for code)
     </p>
     <p>
       background=<a href="https://github.com/zuramai/starback.js">starback</a>
