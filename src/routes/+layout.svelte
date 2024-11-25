@@ -62,14 +62,16 @@
 
 <Background disable={!backgroundEnabled} />
 
-<div style="position: absolute; top: 5px; right: 5px;">
+<div style="position: absolute; top: 5px; right: 24px;">
   <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
   <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
 </div>
 
 <div style="min-height: 100%; display: flex; flex-direction: column;">
-  <div style="flex: 1">
-    {@render children?.()}
+  <div style="width: 100%; height: 100%; display: flex; justify-content: center;">
+    <div style="width: 100%; max-width: 800px; padding: 0 24px;">
+      {@render children?.()}
+    </div>
   </div>
   <footer>
     {#if $page.url.pathname !== '/'}
