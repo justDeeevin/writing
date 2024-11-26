@@ -62,9 +62,11 @@
 
 <Background disable={!backgroundEnabled} />
 
-<div style="position: absolute; top: 5px; right: 24px;">
-  <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
-  <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
+<div style="position: relative;">
+  <div style="position: absolute; top: 5px; right: 24px;">
+    <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
+    <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
+  </div>
 </div>
 
 <div style="min-height: 100vh; display: flex; flex-direction: column;">
