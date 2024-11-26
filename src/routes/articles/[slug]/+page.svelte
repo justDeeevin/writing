@@ -16,10 +16,10 @@
 
 <div style="margin-left: 10px; margin-right: 10px; margin-bottom: 10px;">
   <hgroup>
-    <h1 style="margin-bottom: 28px; margin-top: 64px; font-size: 3rem; line-height: 4rem;">
+    <h1 style="margin-bottom: 12px; margin-top: 64px; font-size: 3rem; line-height: 4rem;">
       {data.meta.title}
     </h1>
-    <p style="margin-top: 0">{data.meta.date}</p>
+    <p style="margin-top: 0; margin-bottom: 28px;">{data.meta.date}</p>
 
     <div class="row">
       {#each data.meta.categories as category}

@@ -17,29 +17,46 @@
   let { children }: Props = $props();
 
   onMount(() => {
-    if (browser) {
+    // const links = document.querySelectorAll('a');
+    // links.forEach((link) => {
+    //   if (
+    //     link.href.includes('justdeeevin.dev') ||
+    //     (import.meta.env.DEV && link.href.includes('localhost:5173'))
+    //   ) {
+    //     link.target = '_self';
+    //   }
+    // });
+
+    const observer = new MutationObserver((mutations) => {
       const links = document.querySelectorAll('a');
       links.forEach((link) => {
         if (
-          link.href.includes('justdeeevin.dev') ||
-          (import.meta.env.DEV && link.href.includes('localhost:5173'))
+          !link.href.includes('justdeeevin.dev') &&
+          !(
+            import.meta.env.DEV &&
+            (link.href.includes('localhost:5173') || link.href.includes('127.0.0.1:5173'))
+          )
         ) {
-          link.target = '_self';
+          link.target = '_blank';
         }
       });
+    });
 
-      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
-      code.forEach((code) => {
-        code.addEventListener('click', () => {
-          navigator.clipboard.writeText(code.innerText);
-          const copiedText = '<i>copied</i><br>';
-          code.innerHTML = copiedText + code.innerHTML;
-          setTimeout(() => {
-            code.innerHTML = code.innerHTML.substring(copiedText.length);
-          }, 800);
-        });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const code = document.querySelectorAll<HTMLElement>('pre.highlight');
+    code.forEach((code) => {
+      code.addEventListener('click', () => {
+        navigator.clipboard.writeText(code.innerText);
+        const copiedText = '<i>copied</i><br>';
+        code.innerHTML = copiedText + code.innerHTML;
+        setTimeout(() => {
+          code.innerHTML = code.innerHTML.substring(copiedText.length);
+        }, 800);
       });
-    }
+    });
+
+    return () => observer.disconnect();
   });
 
   let themeSwitch = $state(store.theme === 'light');
@@ -55,10 +72,6 @@
   });
   $effect(() => window.localStorage.setItem('backgroundEnabled', backgroundEnabled.toString()));
 </script>
-
-<svelte:head>
-  <base target="_blank" />
-</svelte:head>
 
 <Background disable={!backgroundEnabled} />
 

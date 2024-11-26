@@ -12,7 +12,11 @@
   let tags = new SvelteSet(JSON.parse($page.url.searchParams.get('tags') ?? '[]'));
   let title = $state($page.url.searchParams.get('title'));
 
-  const unused_tags = $derived(available_tags.difference(tags));
+  const unused_tags = $derived(
+    typeof available_tags.difference === 'function'
+      ? available_tags.difference(tags)
+      : new Set([...available_tags].filter((tag) => !tags.has(tag)))
+  );
 
   const sorted_articles = $derived(
     (!title
