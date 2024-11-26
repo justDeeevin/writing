@@ -14,7 +14,7 @@
 
   const unused_tags = $derived(available_tags.difference(tags));
 
-  const sorted_articles = $derived(
+  const filtered_articles = $derived(
     (!title
       ? articles
       : new Fuse(articles, { keys: ['title'] }).search(title).map((item) => item.item)
@@ -74,11 +74,11 @@
 <label for="title">title:</label>
 <input type="text" name="title" bind:value={title} />
 
-{#if sorted_articles.length === 0}
+{#if filtered_articles.length === 0}
   <h3>no results</h3>
 {:else}
   <ul>
-    {#each sorted_articles as article}
+    {#each filtered_articles as article}
       <li>
         <a href={`articles/${article.slug}`} target={'_self'}>{article.title}</a>
       </li>
