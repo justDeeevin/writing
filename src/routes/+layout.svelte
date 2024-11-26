@@ -17,16 +17,6 @@
   let { children }: Props = $props();
 
   onMount(() => {
-    // const links = document.querySelectorAll('a');
-    // links.forEach((link) => {
-    //   if (
-    //     link.href.includes('justdeeevin.dev') ||
-    //     (import.meta.env.DEV && link.href.includes('localhost:5173'))
-    //   ) {
-    //     link.target = '_self';
-    //   }
-    // });
-
     const observer = new MutationObserver((mutations) => {
       const links = document.querySelectorAll('a');
       links.forEach((link) => {
