@@ -67,13 +67,13 @@
   <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
 </div>
 
-<div style="min-height: 100%; display: flex; flex-direction: column;">
-  <div style="width: 100%; height: 100%; display: flex; justify-content: center;">
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+  <div style="width: 100%; height: 100%; display: flex; justify-content: center; flex-grow: 1;">
     <div style="width: 100%; max-width: 800px; padding: 0 24px;">
       {@render children?.()}
     </div>
   </div>
-  <footer>
+  <footer style="flex-shrink: 0;">
     {#if $page.url.pathname !== '/'}
       <a href="/">home</a>
     {/if}
