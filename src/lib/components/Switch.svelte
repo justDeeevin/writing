@@ -10,16 +10,16 @@
   let { checked = $bindable(false), leftText, rightText }: Props = $props();
 </script>
 
-<div class="row">
+<div class="row" style="margin: 5px;">
   {#if leftText}
-    <p>{leftText}</p>
+    <p style="margin: 0;">{leftText}</p>
   {/if}
   <label class="switch">
     <input type="checkbox" bind:checked />
     <span class="slider"></span>
   </label>
   {#if rightText}
-    <p>{rightText}</p>
+    <p style="margin: 0;">{rightText}</p>
   {/if}
 </div>
 
