@@ -17,29 +17,36 @@
   let { children }: Props = $props();
 
   onMount(() => {
-    if (browser) {
+    const observer = new MutationObserver((mutations) => {
       const links = document.querySelectorAll('a');
       links.forEach((link) => {
         if (
-          link.href.includes('justdeeevin.dev') ||
-          (import.meta.env.DEV && link.href.includes('localhost:5173'))
+          !link.href.includes('justdeeevin.dev') &&
+          !(
+            import.meta.env.DEV &&
+            (link.href.includes('localhost:5173') || link.href.includes('127.0.0.1:5173'))
+          )
         ) {
-          link.target = '_self';
+          link.target = '_blank';
         }
       });
+    });
 
-      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
-      code.forEach((code) => {
-        code.addEventListener('click', () => {
-          navigator.clipboard.writeText(code.innerText);
-          const copiedText = '<i>copied</i><br>';
-          code.innerHTML = copiedText + code.innerHTML;
-          setTimeout(() => {
-            code.innerHTML = code.innerHTML.substring(copiedText.length);
-          }, 800);
-        });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const code = document.querySelectorAll<HTMLElement>('pre.highlight');
+    code.forEach((code) => {
+      code.addEventListener('click', () => {
+        navigator.clipboard.writeText(code.innerText);
+        const copiedText = '<i>copied</i><br>';
+        code.innerHTML = copiedText + code.innerHTML;
+        setTimeout(() => {
+          code.innerHTML = code.innerHTML.substring(copiedText.length);
+        }, 800);
       });
-    }
+    });
+
+    return () => observer.disconnect();
   });
 
   let themeSwitch = $state(store.theme === 'light');
@@ -56,22 +63,22 @@
   $effect(() => window.localStorage.setItem('backgroundEnabled', backgroundEnabled.toString()));
 </script>
 
-<svelte:head>
-  <base target="_blank" />
-</svelte:head>
-
 <Background disable={!backgroundEnabled} />
 
-<div style="position: absolute; top: 5px; right: 5px;">
-  <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
-  <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
+<div style="position: relative;">
+  <div style="position: absolute; top: 5px; right: 24px;">
+    <Switch leftText="dark" rightText="light" bind:checked={themeSwitch} />
+    <Switch leftText="snowfall" bind:checked={backgroundEnabled} />
+  </div>
 </div>
 
-<div style="min-height: 100%; display: flex; flex-direction: column;">
-  <div style="flex: 1">
-    {@render children?.()}
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+  <div style="width: 100%; height: 100%; display: flex; justify-content: center; flex-grow: 1;">
+    <div style="width: 100%; max-width: 800px; padding: 0 24px;">
+      {@render children?.()}
+    </div>
   </div>
-  <footer>
+  <footer style="flex-shrink: 0;">
     {#if $page.url.pathname !== '/'}
       <a href="/">home</a>
     {/if}

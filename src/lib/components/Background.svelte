@@ -77,7 +77,7 @@
     position: fixed;
     z-index: -1;
     opacity: {disable ? '0' : '100%'};
-    transition: opacity 0.4s"
+    transition: opacity 0.4s;"
 ></canvas>
 
 <svelte:window
