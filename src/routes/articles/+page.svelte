@@ -9,8 +9,13 @@
 
   let selected_tag = $state('');
 
-  let tags = new SvelteSet(JSON.parse($page.url.searchParams.get('tags') ?? '[]'));
-  let title = $state($page.url.searchParams.get('title'));
+  const init: { tags?: string[]; title?: string } = JSON.parse(
+    $page.url.searchParams.get('init') ?? '{}'
+  );
+
+  const tags = new SvelteSet(init.tags ?? []);
+
+  let title = $state(init.title ?? '');
 
   const unused_tags = $derived(
     typeof available_tags.difference === 'function'

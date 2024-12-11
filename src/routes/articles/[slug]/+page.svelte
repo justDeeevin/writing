@@ -24,7 +24,10 @@
     <div class="row">
       {#each data.meta.categories as category}
         <p style="margin-top: 0">
-          <a href="/articles?tags=[&quot;{category}&quot;]">&num;{category}</a>&nbsp;
+          <a
+            href="/articles?init=&lbrace;&quot;tags&quot;: &lbrack;&quot;{category}&quot;&rbrack;&rbrace;"
+            >&num;{category}</a
+          >&nbsp;
         </p>
       {/each}
     </div>
