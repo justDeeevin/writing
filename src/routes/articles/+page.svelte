@@ -17,11 +17,7 @@
 
   let title = $state(init.title ?? '');
 
-  const unused_tags = $derived(
-    typeof available_tags.difference === 'function'
-      ? available_tags.difference(tags)
-      : new Set([...available_tags].filter((tag) => !tags.has(tag)))
-  );
+  const unused_tags = $derived(available_tags.difference(tags));
 
   const filtered_articles = $derived(
     (!title
