@@ -17,7 +17,7 @@
   let { children }: Props = $props();
 
   onMount(() => {
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
       const links = document.querySelectorAll('a');
       links.forEach((link) => {
         if (
@@ -30,21 +30,21 @@
           link.target = '_blank';
         }
       });
+
+      const code = document.querySelectorAll<HTMLElement>('pre.highlight');
+      code.forEach((code) => {
+        code.addEventListener('click', () => {
+          navigator.clipboard.writeText(code.innerText);
+          const copiedText = '<i>copied</i><br>';
+          code.innerHTML = copiedText + code.innerHTML;
+          setTimeout(() => {
+            code.innerHTML = code.innerHTML.substring(copiedText.length);
+          }, 800);
+        });
+      });
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
-
-    const code = document.querySelectorAll<HTMLElement>('pre.highlight');
-    code.forEach((code) => {
-      code.addEventListener('click', () => {
-        navigator.clipboard.writeText(code.innerText);
-        const copiedText = '<i>copied</i><br>';
-        code.innerHTML = copiedText + code.innerHTML;
-        setTimeout(() => {
-          code.innerHTML = code.innerHTML.substring(copiedText.length);
-        }, 800);
-      });
-    });
 
     return () => observer.disconnect();
   });
