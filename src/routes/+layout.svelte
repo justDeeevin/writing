@@ -33,14 +33,17 @@
 
       const code = document.querySelectorAll<HTMLElement>('pre.highlight');
       code.forEach((code) => {
-        code.addEventListener('click', () => {
-          navigator.clipboard.writeText(code.innerText);
-          const copiedText = '<i>copied</i><br>';
-          code.innerHTML = copiedText + code.innerHTML;
-          setTimeout(() => {
-            code.innerHTML = code.innerHTML.substring(copiedText.length);
-          }, 800);
-        });
+        if (!code.classList.contains('hooked')) {
+          code.classList.add('hooked');
+          code.addEventListener('click', () => {
+            navigator.clipboard.writeText(code.innerText);
+            const copiedText = '<i>copied</i><br>';
+            code.innerHTML = copiedText + code.innerHTML;
+            setTimeout(() => {
+              code.innerHTML = code.innerHTML.substring(copiedText.length);
+            }, 800);
+          });
+        }
       });
     });
 
