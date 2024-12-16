@@ -414,3 +414,48 @@ That's pretty much it. Obviously there's plenty more config in my system, but no
 
 [literal]
 - devin
+
+== Addendum 2024-12-16: Ricing
+
+Since writing this article, I've switched to using Hyrpland. As with most things, NixOS has made this easy, but there are two specific things that I've used that have greatly streamlined the process.
+
+=== Packages as Data
+
+If you watched the video I linked about derivations, you have a bit of an understanding about how nix packaging works. The bottom line is that, once a package (such as `pkgs.vim`) is evaluated, it becomes a path pointing to the files. You can actually refer to specific files within the package's directory with string interpolation. This means that I can directly refer to executables in the nix store in my Hyprland configuration instead of installing them on my system and putting them on my path.
+
+[source,nix]
+----
+{pkgs, ...}: {
+  wayland.windowManager.hyprland.settings.bind = [
+    ", Print, exec, ${pkgs.grimblast}/bin/grimblast copy area"
+  ];
+}
+----
+
+I never plan on actually using grimblast from my terminal, so I don't need to put it on my path. I'm personally a fan of decluttering my installed packages like this, and I really appreciate that NixOS lets me do it.
+
+One note on this: The nixpkgs library has a utility function for this:
+
+[source,nix]
+----
+{pkgs, lib, ...}: {
+  wayland.windowManager.hyprland.settings.exec-once = [
+    (lib.getExe pkgs.syshud)
+  ];
+}
+----
+
+This will automatically get the path to the executable itself.
+
+=== Stylix
+
+https://github.com/danth/stylix[Stylix] is a library for NixOS that will automatically generate and apply a theme to countless applications via Home Manager. It will apply font settings, cursor settings, and a color theme to applications automatically after you set them in one place. It will set the wallpaper background of your choice of desktop environment, and it can even automatically generate a color scheme from this background. I personally have used the base-16 version of the Oxocarbon scheme, though. With Stylix, I don't have to worry about manually assigning colors to every application I use in my relatively complex Hyprland rice. I can just do this:
+
+[source,nix]
+----
+{pkgs, ...}: {
+  stylix.base16Scheme = "${pkgs.base16-scheme}/share/themes/oxocarbon-dark.yaml";
+}
+----
+
+And it will automatically color Hyprland, waybar, firefox, vesktop, and countless other applications.
