@@ -1,5 +1,9 @@
 @import './theme.css';
 
+:root {
+  --code-blur: blur(3px);
+}
+
 html,
 body {
   height: 100%;
@@ -34,7 +38,7 @@ p > code {
   border-radius: 2px;
   border: solid 1px var(--base03);
   background-color: rgb(from var(--base00) r b g / 65%);
-  backdrop-filter: blur(5px);
+  backdrop-filter: var(--code-blur);
 }
 
 pre.highlight {
@@ -45,7 +49,7 @@ pre.highlight {
   padding: 10px;
   /* 65% opacity */
   background-color: rgb(from var(--base00) r b g / 65%);
-  backdrop-filter: blur(5px);
+  backdrop-filter: var(--code-blur);
   overflow-x: auto;
 }
 
