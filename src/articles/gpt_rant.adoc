@@ -1,0 +1,29 @@
+---
+title: GPT is Not the Way Forward
+date: "2025-01-06"
+published: false
+categories:
+  - ai
+  - rant
+  - technology
+---
+
+:toc:
+
+== Introduction
+
+These are scary times for software engineering.
+
+I'm not readily concerned about my job being replaced by AI. OpenAI's o1, Deepseek, LLaMA; not even the best of the best language models have the capability of reliably creating robust code that meets exact specifications. What I am concerned about, however, is how some programmers are **trying to make themselves replaced**.
+
+It seems like every programmer I speak to online today has LLMs as a core part of their development workflow. https://medium.com/data-science-in-your-pocket/what-is-vibe-coding-cf52c4efa867[Vibe coding] (which I hope is a joke) aside, many programmers rely upon LLMs to **do their reasoning for them**, sending error messages straight to Copilot chat without reading them or starting a problem by asking ChatGPT how it would recommend it be solved. This casting aside of problem-solving is fundamentally contradictory to software engineering and engineering as a whole.
+
+This isn't just anecdotal. Google recently stated that 25% of their new code is AI-generatedfootnote:[https://www.forbes.com/sites/jackkelly/2024/11/01/ai-code-and-the-future-of-software-engineers/], and GitHub claims that 41% of all code on its platform is AI-generatedfootnote:[...]. This isn't just assistance. This is features and projects written from the ground up by an LLM. With how pervasive such code appears to be, we have to consider the effects it may have.
+https://github.com/hangyav/textLSP
+== The Problem
+
+LLMs don't write good code. **Sometimes**footnote:[okay, probably more often than not] they write code that works, but it's even less frequent that they write code that is robust, performant, and understandable. SOMETHING ABOUT CODE QUALITY.
+
+The root of the problem is this: LLMs _cannot reason_. That isn't what they're made for, and it isn't something they'll ever be capable of. The truest "artificial intelligence" in ChatGPT is the **T** of the acronym: **transformer**. Taking in a string of text, be it a word, a sentence, or an entire paragraph, and progressively transforming it into a single vector that encodes the full abstract meaning of the input. This process facilitates a complete understanding of human language, and is very challenging and impressive. Far less challenging and impressive, however, is **G**, that being generative. **All that the generator does is predict the next word**. It's a game of probability. It does not think about a given problem to try and determine an answer, it does not consider anything other than the most likely token to follow the given string. This is fundamentally incompatible with reason and logic. ChatGPT cannot think, it cannot problem-solve, _and it never will_.
+
+**However, the tech sphere can't seem to understand this**. OpenAI and other companies keep trying to force LLMs to reason; they've made chatbots talk to themselves, and they've put even more money, electricity, and stolen data into their training programs. 
