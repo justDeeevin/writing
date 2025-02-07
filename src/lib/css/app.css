@@ -92,3 +92,7 @@ button:enabled:active {
   background-color: var(--base02);
   transition: 0s;
 }
+
+div#toctitle {
+  font-size: 24px;
+}
