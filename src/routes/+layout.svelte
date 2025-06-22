@@ -100,7 +100,7 @@
       background=<a href="https://github.com/zuramai/starback.js">starback</a>
     </p>
     <p>
-      mail=<a href="mailto:devin.droddy@gmail.com">devin.droddy@gmail.com</a>
+      mail=<a href="mailto:devin@justdeeevin.dev">devin@justdeeevin.dev</a>
     </p>
   </footer>
 </div>
