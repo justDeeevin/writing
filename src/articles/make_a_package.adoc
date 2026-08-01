@@ -1,0 +1,383 @@
+---
+title: A guide to packaging software for Nixpkgs
+date: "2026-08-03"
+published: false
+categories:
+  - nix
+  - guide
+---
+
+:toc:
+
+== Introduction
+
+If you've used NixOS as your primary system for a while, you've probably found software that you wanted to use that wasn't packaged for Nix. While there are options like nix-ld, flatpak, appimage-run, and others for getting around this, if what you want to use has a strong enough use case, and if you're interested in learning more about how NixOS works and/or writing Nix code, then it's probably in your best interest to try to create a package for the program and submit it to Nixpkgs to hopefully get it added.
+
+Even if you're not a NixOS user or very experienced with Nix, these instructions can still be a good starting point for working in the environment and contributing to open-source in general.
+
+== Technical Background
+
+=== Nix
+
+"Nix" refers to a few different, but related, things.
+
+The purely functional package manager:: Nix is a Linux package management solution based on an incredibly unique idea: *what if software could be built and distributed in a provably pure and reproducable manner?* This concept was first described in a 2004 PhD thesis by three students in the Netherlands <<nix>>. Every software package created with Nix can be known to produce precisely the same output when given the same input, regardless of external factors. Nix uses a domain-specific functional programming language of the same name to write package definitions.
+
+The programming language:: At its core, the Nix language is used to create structured data. It's similar to other human-readable data formats like JSON or YAML, with a few notable features. First, *Nix has functions*, and very complex ones at that. It supports partial function application, if/else statements, and even https://noogle.dev/md/tutorials/functors/[functors]. This allows for complex behavior and the creation of libraries to increase ergonomics when working with big datasets. However, what really defines Nix and allows it to do package management is the *derivation*. +
+Nix provides a built-in function `derivation` that, given an key/value dictionary (called an "attribute set" or "attrset") with certain values, will run a sandboxed software build as defined by the attrset, place it in the *Nix store*{empty}footnote:[The folder `/nix/store` where all derivations are placed. The store is read-only to everyone and everything but the Nix evaluator.], and return the path to its output file or folder as a string. Importantly, *`derivation` is a pure function*, which is what gives the Nix package manager its unique properties.
+
+The Linux distribution:: NixOS is a Linux distribution based on Nix, created in 2010 by some of the same minds behind the 2004 thesis <<nixos>>. However, it doesn't just use Nix as its primary package manager. It also uses Nix to generate configuration files as derivations, using Nix structured data as the basis for the output. By having a standardized output for where these files should live, NixOS can create a single derivation with all of the files needed to configure a Linux system, and use a program to traverse that derivation and create shortcuts in the actual filesystem that point to the files in the Nix store. With this, NixOS allows you to configure which packages you have installed, how they are configured, and various other properties of your system, all with the same language and in the same place.
+
+The package repository:: Every Linux distribution needs a repository of software for its users to pull from. NixOS has Nixpkgs, which you will be contributing to with these instructions. Nixpkgs is simply a GitHub repository with a huge amount of Nix code defining more than 100,000 derivations for NixOS users to install.
+
+=== Tool use
+
+While the next section will cover the materials needed to follow these instructions, precisely how to use them will not be covered. These instructions assume knowledge of how to use Linux, Git, and command-line tools at a terminal interface. The assumption is that, given the intent to contribute to a Linux distribution, the reader is at least competent with Linux and how software works.
+
+=== Looking for help
+
+If at any point there is an obstacle that these instructions don't cover, here are some helpful resources I recommend:
+
+nix.dev <<nix.dev>>:: A wonderfully tailored collection of information on various things one might need to do in the NixOS ecosystem as a whole. Useful for help with the Nix language, Nixpkgs tools, etc.
+
+Zero to Nix <<zero2>>:: A broad and opinionated guide to various development tasks with Nix. Whereas nix.dev has buidance for the Nix ecosystem as a whole, Zero to Nix focuses more on packaging and development with the Nix language.
+
+The community <<community>>:: The Nix community is large, kind, and helpful. The referenced page has links to many places where you can find people to talk to. I personally recommend Discourse, their official forum page.
+
+== Materials
+
+Linux:: Nix only works on Linuxfootnote:[It also works on Mac, but the differences are negligible.]. If you're on Windows, consider using https://learn.microsoft.com/en-us/windows/wsl/install[the Windows Subsystem for Linux].
+
+Nix:: You don't need to use NixOS, but you do need the Nix package manager, which can be https://nixos.org/download/[installed] independently.
+
+Git:: Needed to clone the Nixpkgs repository and upload your changes. Install it with your Linux distribution's package manager.
+
+A text editor:: Probably https://code.visualstudio.com[VSCode], but any suitable editor can be used.
+
+A web browser:: Anything will work. You'll be visiting a number of websites during this task.
+
+A terminal:: While most of the work is in your text editor of choice and in the browser, some steps will require the use of command-line tools.
+
+A GitHub account:: Needed to create a fork and become a contributor to Nixpkgs. You can create one https://github.com/signup[here].
+
+A locally cloned fork of Nixpkgs:: You will need to visit <<nixpkgs>>, create a fork, and use `git clone` to create an instance on your computer. This can go anywhere on your filesystem. *This copy will be the working directory for all commands shown in these instructions.*
+
+nurl:: A command-line tool that will generate fetcher code—importantly, including the output hash—for you. A very important time-saving tool. It can be downloaded https://github.com/nix-community/nurl/releases/tag/v0.4.0[here], but it can probably be installed with your distribution's package manager.
+
+nixfmt:: A command-line tool to format Nix code. Install it with your distribution's package manager.
+
+== Instructions
+
+=== 1. Initialization
+
+*Create the folder for the new package and an empty file for its code.*
+
+Most new packages will live in `pkgs/by-name`. This folder is organized by the first two letters of the package name. For this example, the code will live in `pkgs/by-name/as/ashell`. The derivation will be written in a `package.nix` file in this folder, which can be left empty for now.
+
+=== 2. Find a build helper
+
+One great thing about Nixpkgs is that there are helper functions for packaging software made in almost any language or framework you can name. Even better, they're all comprehensively documented in the <<manual>>, in the aptly-named https://nixos.org/manual/nixpkgs/stable#chap-language-support[*Languages and frameworks*] section.
+
+*Locate the section for the language or framework corresponding to the new package in the manual and find a usage example for its build helper.* There may be special instructions for the new package's build helper; make sure to read and understand these carefully.
+
+=== 3. Write the first revision
+
+* *`package.nix` should be a function with an attrset argument and a derivation return value.*
+
+[source, nix]
+----
+{...}: null # placeholder return value
+----
+
+* *Add the new package's build helper as an argument, as well as a fetcher for the package's source code.* +
+  The most likely case is that the fetcher will be `fetchFromGitHub`, but if the package is hosted somewhere else, the Nixpkgs manual has https://nixos.org/manual/nixpkgs/stable/#chap-pkgs-fetchers[a full list of options] that will probably have the right thing.
+
+[source,nix]
+----
+{rustPlatform, fetchFromGitHub}: null
+----
+
+* *Apply the build helper function to create the package's derivation.* +
+  Notice that `buildRustPackage` takes a function as an input. The `finalAttrs` argumentfootnote:[Only so named by convention] is an attrset that will contain the final state of the attributes that the build helper uses. This is used to reference repeated values (as will be demonstrated in a later step) while still respecting any overrides downstream users of the package may apply.
+
+[source,nix]
+----
+rustPlatform.buildRustPackage (finalAttrs: {})
+----
+
+* *Set the `pname` and `version` attributes*.
+
+[source,nix]
+----
+{
+  pname = "ashell";
+  version = "0.9.0";
+}
+----
+
+* *Use `nurl` to pre-compute the output hash of the package's source code and copy its output to the `src` attribute of the derivation.*
+
+[source,nix]
+----
+{
+  src = fetchFromGitHub {
+    owner = "MalpenZibo";
+    repo = "ashell";
+    tag = "0.9.0";
+    hash = "sha256-QRNEc2HNqA1tZk/jW/MXDwXda58yNlkw86SCTjH1/1w=";
+  };
+}
+----
+
+* *Make `src` use the package's version to determine the Git revision.* +
+  While future updates will still necessitate re-computing the hash, this change is a nice convenience and standard practice. +
+   +
+  For this example, the GitHub tag is the version number, but many projects prepend their tag names with "v" (e.g. "v0.9.0"). If this is the case, string templating can be used for the tag name: `"v${finalAttrs.version}"`.
+
+[source,nix]
+----
+{
+  tag = finalAttrs.version;
+}
+----
+
+* *Complete any other necessary work for the package's build helper.* +
+  `buildRustPackage` requires that the pre-fetched dependencies are provided an output hash via the `cargoHash` attribute. Many other build helpers have a similar pattern. The most reliable approach for calculating hashes like this is to set the attribute to an empty string and <<build, attempt a build>>. The error message will output the "expected hash", which can be copied for the attribute's value.
+
+[source,nix]
+----
+{
+  cargoHash = ""; # start with this, attempt a build
+
+  cargoHash = "sha256-bLZcRASBGV9Y/QlDVBdOl2ElZDLI1KUAh5MlOsjmlKs="; # copied from error message
+}
+----
+
+[#build]
+=== 4. Attempt to build the package
+
+*run `nix-build -A ashell`* (substituting your package's pname). If it succeeds, move onto <<test, step 6>>. Far more likely, however, is that something goes wrong. In this case, the hardest part begins:
+
+=== 5. Troubleshoot the package
+
+*The most common cause of build failures is missing dependencies.* There are a couple of ways to deal with this: some build helpers may have their own `dependencies` (or similarly named) attribute (python is one such case). However, usually *the two important attributes are `buildInputs` and `nativeBuildInputs`.*
+
+*`buildInputs` fulfills the traditional idea of "dependencies"—libraries that the program relies upon to function.* If you're lucky, the error log may contain the libraries that are needed; in this case, you'll need to find the corresponding packages in Nixpkgs, add them to the package's argument attrset, and add them to `buildInputs`.
+
+[source,nix]
+----
+{
+  rustPlatform,
+
+  libpulseaudio,
+  libxkbcommon,
+  pipewire,
+  udev,
+  wayland,
+  libGL,
+  vulkan-loader,
+}:
+rustPlatform.buildRustPackage (finalAttrs: {
+  buildInputs = [
+    libpulseaudio
+    libxkbcommon
+    pipewire
+    udev
+  ];
+})
+----
+
+The error output might include the name of a library file rather than a package name (e.g. `wayland-client.pc`). If this is the case, `nix-locate` can be used to list packages that expose files with that name.
+
+If the log doesn't name missing dependencies, then you need to start digging. My best advice is to see what the project has documented; often there will be a dependency list in a `CONTRIBUTING.md` or `BUILDING.md` or similar file. If neither the logs nor the project reveal what is needed, there are few other options. Deeper research can be done, but the best bet is probably to leave an issue report or something similar to ask the developers for their input on the matter. This is the kind of thing that most open source developers should expect and be willing help with.
+
+*`nativeBuildInputs` is generally programs that need to be run as part of the compilation of the package.* In this example, some tools are needed to handle the integration of system libraries with Rust code.
+
+[source,nix]
+----
+{
+  nativeBuildInputs = [
+    pkg-config
+    autoPatchelfHook # more on this later
+    rustPlatform.bindgenHook # not technically software, but the difference is too complex to get into here. keywords for more info: "nix derivation hooks"
+  ];
+}
+----
+
+[#test]
+=== 6. Test the software
+
+After a successful <<build, build>>, the package output can be found in the `result` folder in the Nixpkgs root. Executable binaries can be found in the `bin` folder within `result`. *Run the program and use it to verify that it is fully functional*. A build doesn't necessarily guarentee working software.
+
+For instance, there may be some libraries that need to be accessible to the package at run time in addition to compile time. These so-called *"dynamic libraries"* need special treatment in the package's definition. This, however, is another problem that has various approaches between build helpers. For this example, `buildRustPackage` has the `runtimeDependencies` attribute. For good measure, though, I also include `autoPatchelfHook` in `nativeBuildInputs`, which will run a script to check for runtime dependencies and adjust the executable to specify the path to the library files in the Nix store.
+
+[source,nix]
+----
+{
+  runtimeDependencies = [
+    wayland
+    libGL
+    vulkan-loader
+  ];
+
+  buildInputs = [
+    libpulseaudio
+    libxkbcommon
+    pipewire
+    udev
+  ]
+  ++ finalAttrs.runtimeDependencies;
+  # notice that I manually append runtimeDependencies to buildInputs—it is often the case that dynamic libraries also need to be included at compile time
+}
+----
+
+=== 7. Add the package metadata
+
+Every package has a `meta` attrset that contains data relevant to the package's place in Nixpkgs. *These are the attributes I usually set:*
+
+[source,nix]
+----
+{
+  meta = {
+    description = "Ready to go Wayland status bar for Hyprland"; # usually copied from package's homepage/repo
+    homepage = "https://github.com/MalpenZibo/ashell"; # 99% of the time this is just the repo but some packages may have their own websites
+    license = lib.licenses.gpl3Plus; # you'll have to check the source code for the license. this attribute can be an array if there are multiple licenses
+    maintainers = with lib.maintainers; [ justdeeevin ]; # by contributing the package, you are the maintainer by default
+    platforms = lib.platforms.linux; # many packages will probably support platforms.all
+  };
+}
+----
+
+*Note that the `lib` attrset is used here. It will need to be added to the package's argument attrset.*
+
+=== 8. Add yourself as a maintainer
+
+*Add an entry to `maintainers/maintainer-list.nix` with your information.* This is what mine looks like:
+
+[source,nix]
+----
+{
+  justdeeevin = {
+    email = "devin.droddy@gmail.com";
+    github = "justdeeevin";
+    githubId = 90054389; # you can get this by visiting https://api.github.com/users/your_username_here
+    name = "Devin Droddy";
+  };
+}
+----
+
+=== 9. Final touches
+
+*First, make sure that `__structuredAttrs` and `strictDeps` are both set to `true`.* Nixpkgs will not accept the package if they are not. You can check whether the build helper did this for you with the command `nix derivation show .#ashell` (substituting your package's name) and finding those two attributes in the "env" field. *If they are not set, this will need to be added to the very end of the package:*
+
+[source,nix]
+----
+(
+  # the derivation...
+).overrideAttrs
+  (old: {
+    __structuredAttrs = true;
+    strictDeps = true;
+  })
+----
+
+*Next, format the code with `nixfmt`.* Nixpkgs will not accept the package if the code isn't formatted properly.
+
+=== 10. Commit your changes
+
+*First, create a new branch off of `master`.* The commits will live there.
+
+There should be two separate commits: one that adds you to the maintainer list and one that adds the package. *Be sure to follow https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#commit-conventions[the Nixpkgs convensions] for your commit message.*
+
+
+*This is the final state of the example package:*
+
+[source,nix]
+----
+{
+  fetchFromGitHub,
+  lib,
+  rustPlatform,
+  autoPatchelfHook,
+  pkg-config,
+  libxkbcommon,
+  libGL,
+  pipewire,
+  libpulseaudio,
+  wayland,
+  udev,
+  vulkan-loader,
+  nix-update-script,
+}:
+rustPlatform.buildRustPackage (finalAttrs: {
+  pname = "ashell";
+  version = "0.9.0";
+
+  src = fetchFromGitHub {
+    owner = "MalpenZibo";
+    repo = "ashell";
+    tag = finalAttrs.version;
+    hash = "sha256-QRNEc2HNqA1tZk/jW/MXDwXda58yNlkw86SCTjH1/1w=";
+  };
+
+  cargoHash = "sha256-bLZcRASBGV9Y/QlDVBdOl2ElZDLI1KUAh5MlOsjmlKs=";
+
+  nativeBuildInputs = [
+    pkg-config
+    autoPatchelfHook
+    rustPlatform.bindgenHook
+  ];
+
+  runtimeDependencies = [
+    wayland
+    libGL
+    vulkan-loader
+  ];
+
+  buildInputs = [
+    libpulseaudio
+    libxkbcommon
+    pipewire
+    udev
+  ]
+  ++ finalAttrs.runtimeDependencies;
+
+  meta = {
+    description = "Ready to go Wayland status bar for Hyprland";
+    homepage = "https://github.com/MalpenZibo/ashell";
+    license = lib.licenses.gpl3Plus;
+    mainProgram = "ashell";
+    maintainers = with lib.maintainers; [ justdeeevin ];
+    platforms = lib.platforms.linux;
+  };
+}).overrideAttrs
+  (old: {
+    __structuredAttrs = true;
+    strictDeps = true;
+  })
+----
+
+*Your package should look something like this.*
+
+=== 11. Submit your changes
+
+* *Push the new commits to your fork.*
+* *View your fork on GitHub.* A yellow prompt should be visible with the branch name and a button to create a pull request. *Push the green button.*
+* *Fill out the pull request template.*
+* *Review the contributor guidelines* <<guidelines>>.
+* *Publish the pull request.*
+
+=== 12. Await review
+
+It can take some time for a pull request to get reviewed. If your work was good, it will probably get approved with no issue. However, there's a chance that there may be some requested changes. The Nixpkgs contributors are, by and large, helpful, understanding, and kind. It won't be difficult to do what they ask. Following one or more approvals, eventually a maintainer will accept and merge your pull request, at which point the work is done.
+
+[bibliography]
+== References
+* [[[zero2, Determinate Systems, 2026]]] Determinate Systems. (2026). _Zero to Nix_. https://zero-to-nix.com
+* [[[nix,Dolstra, Jonge, et. al.]]] Dolstra, E., Jonge, M. de, & Visser, E. (2004). _Nix: A Safe and Policy-Free System for Software Deployment_ [Doctoral Dissertation]. https://www.usenix.org/legacy/events/lisa04/tech/full_papers/dolstra/dolstra.pdf
+* [[[nixos,Dolstra, Löh, et. al.]]] Dolstra, E., Löh, A. & Pierron, N. (2010). NixOS: A purely functional Linux distribution. _Journal of Functional Programming, 20_(5—6), 557—615. https://doi.org/10.1017/S0956796810000195
+* [[[nix.dev, Nix Documentation Team, 2026]]] Nix Documentation Team. (2026). _nix.dev_. NixOS Foundation. https://nix.dev
+* [[[community, NixOS Contributors, 2026a]]] NixOS Contributors. (2026a). _Community | Nix & NixOS_. https://nixos.org/community
+* [[[guidelines, NixOS Contributors, 2026b]]] NixOS Contributors. (2026b). _Contributing to Nixpkgs_. NixOS Foundation. https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md
+* [[[nixpkgs, the Nixpkgs repo]]] NixOS Contributors. (2026c). _Nixpkgs_. NixOS Foundation. https://github.com/NixOS/nixpkgs
+* [[[manual, Nixpkgs Manual]]] NixOS Contributors. (2026d). _Nixpkgs Reference Manual_ (26.05). NixOS Foundation. https://nixos.org/manual/nixpkgs/stable

@@ -3,6 +3,7 @@ title: A Walkthrough of My NixOS Configuration
 date: "2024-10-20"
 published: true
 categories:
+  - nix
   - nixos
   - video
   - education

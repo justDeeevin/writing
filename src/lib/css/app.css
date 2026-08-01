@@ -25,6 +25,10 @@ a {
   transition: 0.4s;
 }
 
+dt {
+  font-weight: bold;
+}
+
 ul {
   list-style-type: square;
 }
@@ -33,7 +37,8 @@ code {
   font-family: 'Monaspace Krypton';
 }
 
-p code {
+p code,
+div.footnote code {
   padding: 1px;
   border-radius: 2px;
   border: solid 1px var(--base03);
