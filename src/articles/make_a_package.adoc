@@ -1,7 +1,7 @@
 ---
 title: A guide to packaging software for Nixpkgs
-date: "2026-08-03"
-published: false
+date: "2026-08-11"
+published: true
 categories:
   - nix
   - guide
@@ -72,13 +72,15 @@ nixfmt:: A command-line tool to format Nix code. Install it with your distributi
 
 *Create the folder for the new package and an empty file for its code.*
 
-Most new packages will live in `pkgs/by-name`. This folder is organized by the first two letters of the package name. For this example, the code will live in `pkgs/by-name/as/ashell`. The derivation will be written in a `package.nix` file in this folder, which can be left empty for now.
+Most new packages will live in `pkgs/by-name`. This folder is organized by the first two letters of the package name. For this example, the code will live in `pkgs/by-name/as/ashell`.
+
+The derivation will be written in a `package.nix` (*create this!*) file in this folder, which can be left empty for now.
 
 === 2. Find a build helper
 
 One great thing about Nixpkgs is that there are helper functions for packaging software made in almost any language or framework you can name. Even better, they're all comprehensively documented in the <<manual>>, in the aptly-named https://nixos.org/manual/nixpkgs/stable#chap-language-support[*Languages and frameworks*] section.
 
-*Locate the section for the language or framework corresponding to the new package in the manual and find a usage example for its build helper.* There may be special instructions for the new package's build helper; make sure to read and understand these carefully.
+*Locate the section for the language or framework corresponding to the new package in the manual and find a usage example for its build helper.* There may be special instructions; make sure to read and understand these carefully.
 
 === 3. Write the first revision
 
@@ -156,11 +158,15 @@ rustPlatform.buildRustPackage (finalAttrs: {})
 [#build]
 === 4. Attempt to build the package
 
-*run `nix-build -A ashell`* (substituting your package's pname). If it succeeds, move onto <<test, step 6>>. Far more likely, however, is that something goes wrong. In this case, the hardest part begins:
+*run `nix-build -A ashell`* (substituting your package's pname).
+
+If it succeeds, move onto <<test, step 6>>. Far more likely, however, is that something goes wrong. In this case, the hardest part begins:
 
 === 5. Troubleshoot the package
 
-*The most common cause of build failures is missing dependencies.* There are a couple of ways to deal with this: some build helpers may have their own `dependencies` (or similarly named) attribute (python is one such case). However, usually *the two important attributes are `buildInputs` and `nativeBuildInputs`.*
+*The most common cause of build failures is missing dependencies.*
+
+There are a couple of ways to deal with this: some build helpers may have their own `dependencies` (or similarly named) attribute (python is one such case). However, usually *the two important attributes are `buildInputs` and `nativeBuildInputs`.*
 
 *`buildInputs` fulfills the traditional idea of "dependencies"—libraries that the program relies upon to function.* If you're lucky, the error log may contain the libraries that are needed; in this case, you'll need to find the corresponding packages in Nixpkgs, add them to the package's argument attrset, and add them to `buildInputs`.
 
@@ -189,9 +195,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
 The error output might include the name of a library file rather than a package name (e.g. `wayland-client.pc`). If this is the case, `nix-locate` can be used to list packages that expose files with that name.
 
-If the log doesn't name missing dependencies, then you need to start digging. My best advice is to see what the project has documented; often there will be a dependency list in a `CONTRIBUTING.md` or `BUILDING.md` or similar file. If neither the logs nor the project reveal what is needed, there are few other options. Deeper research can be done, but the best bet is probably to leave an issue report or something similar to ask the developers for their input on the matter. This is the kind of thing that most open source developers should expect and be willing help with.
+*If the log doesn't name missing dependencies, then you need to start digging.* My best advice is to see what the project has documented; often there will be a dependency list in a `CONTRIBUTING.md` or `BUILDING.md` or similar file.
 
-*`nativeBuildInputs` is generally programs that need to be run as part of the compilation of the package.* In this example, some tools are needed to handle the integration of system libraries with Rust code.
+If neither the logs nor the project reveal what is needed, there are few other options. Deeper research can be done, but *the best bet is probably to leave an issue report or something similar to ask the developers for their input on the matter*. This is the kind of thing that most open source developers should expect and be willing help with.
+
+*`nativeBuildInputs` generally contains programs that need to be run as part of the compilation of the package.* In this example, some tools are needed to handle the integration of system libraries with Rust code.
 
 [source,nix]
 ----
@@ -207,9 +215,13 @@ If the log doesn't name missing dependencies, then you need to start digging. My
 [#test]
 === 6. Test the software
 
-After a successful <<build, build>>, the package output can be found in the `result` folder in the Nixpkgs root. Executable binaries can be found in the `bin` folder within `result`. *Run the program and use it to verify that it is fully functional*. A build doesn't necessarily guarentee working software.
+After a successful <<build, build>>, the package output can be found in the `result` folder in the Nixpkgs root. Executable binaries can be found in the `bin` folder within `result`.
 
-For instance, there may be some libraries that need to be accessible to the package at run time in addition to compile time. These so-called *"dynamic libraries"* need special treatment in the package's definition. This, however, is another problem that has various approaches between build helpers. For this example, `buildRustPackage` has the `runtimeDependencies` attribute. For good measure, though, I also include `autoPatchelfHook` in `nativeBuildInputs`, which will run a script to check for runtime dependencies and adjust the executable to specify the path to the library files in the Nix store.
+*Run the program and use it to verify that it is fully functional*.
+
+A build doesn't necessarily guarentee working software. For instance, there may be some libraries that need to be accessible to the package at run time in addition to compile time. *These so-called "dynamic libraries" need special treatment in the package's definition.*
+
+This, however, is another problem that has various approaches between build helpers. For this example, `buildRustPackage` has the `runtimeDependencies` attribute. For good measure, though, I also include `autoPatchelfHook` in `nativeBuildInputs`, which will run a script to check for runtime dependencies and adjust the executable to specify the path to the library files in the Nix store.
 
 [source,nix]
 ----
@@ -268,7 +280,11 @@ Every package has a `meta` attrset that contains data relevant to the package's 
 
 === 9. Final touches
 
-*First, make sure that `__structuredAttrs` and `strictDeps` are both set to `true`.* Nixpkgs will not accept the package if they are not. You can check whether the build helper did this for you with the command `nix derivation show .#ashell` (substituting your package's name) and finding those two attributes in the "env" field. *If they are not set, this will need to be added to the very end of the package:*
+*First, make sure that `__structuredAttrs` and `strictDeps` are both set to `true`.* Nixpkgs will not accept the package if they are not.
+
+You can check whether the build helper did this for you with the command `nix derivation show .#ashell` (substituting your package's name) and finding those two attributes in the "env" field.
+
+*If they are not set, this will need to be added to the very end of the package:*
 
 [source,nix]
 ----
@@ -281,13 +297,15 @@ Every package has a `meta` attrset that contains data relevant to the package's 
   })
 ----
 
-*Next, format the code with `nixfmt`.* Nixpkgs will not accept the package if the code isn't formatted properly.
+*Finally, format the code with `nixfmt`.* Nixpkgs will not accept the package if the code isn't formatted properly.
 
 === 10. Commit your changes
 
 *First, create a new branch off of `master`.* The commits will live there.
 
-There should be two separate commits: one that adds you to the maintainer list and one that adds the package. *Be sure to follow https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#commit-conventions[the Nixpkgs convensions] for your commit message.*
+There should be two separate commits: one that adds you to the maintainer list and one that adds the package.
+
+*Be sure to follow https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#commit-conventions[the Nixpkgs convensions] for your commit message.*
 
 
 *This is the final state of the example package:*
@@ -362,9 +380,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
 === 11. Submit your changes
 
 * *Push the new commits to your fork.*
-* *View your fork on GitHub.* A yellow prompt should be visible with the branch name and a button to create a pull request. *Push the green button.*
+* *View your fork on GitHub.* +
+  A yellow prompt should be visible with the branch name and a button to create a pull request. +
+  *Push the green button.*
 * *Fill out the pull request template.*
-* *Review the contributor guidelines* <<guidelines>>.
+* *Review the contributor guidelines (<<guidelines>>) and make sure your changes meet them.*
 * *Publish the pull request.*
 
 === 12. Await review
